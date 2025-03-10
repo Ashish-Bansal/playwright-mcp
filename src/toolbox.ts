@@ -1,5 +1,10 @@
 export const injectToolbox = () => {
   window.onload = () => {
+    const inIframe = window.self !== window.top;
+    if (inIframe) {
+      return;
+    }
+
     // Create toolbar if it doesn't exist
     if (document.querySelector('#mcp-toolbar')) {
       return
