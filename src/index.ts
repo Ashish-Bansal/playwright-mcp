@@ -56,14 +56,8 @@ server.tool(
     const page = context.pages()[0];
     const dom = await page.evaluate(() => document.documentElement.outerHTML);
     const window = parseDom(dom);
-    const element = window.document.querySelector('[data-pick]');
-    const content = element ? element.outerHTML : '';
-    page.evaluate(() => {
-      const element = document.querySelector('[data-pick]');
-      if (element) {
-        element.removeAttribute('data-pick');
-      }
-    });
+    const elements = window.document.querySelectorAll('[data-pick]');
+    const content = Array.from(elements).map(element => element.outerHTML).join('\n---\n');
 
     return {
       content: [
@@ -118,7 +112,6 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.info("MCP Server running on stdio");
 }
 
 main().catch((error) => {
