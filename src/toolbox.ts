@@ -181,7 +181,35 @@ export const injectToolbox = () => {
       return pickButton;
     }
 
+    const getClearButton = () => {
+      const clearButton = document.createElement('button');
+      clearButton.id = 'mcp-clear-button';
+      clearButton.textContent = 'Clear All';
+      clearButton.style.cssText = `
+        background: #f44336;
+        color: white;
+        border: none;
+        border-radius: 100px;
+        cursor: pointer;
+      `;
+
+      clearButton.addEventListener('click', () => {
+        // Remove all overlays
+        document.querySelectorAll('[id^="mcp-highlight-overlay"]').forEach(el => {
+          el.remove();
+        });
+
+        // Remove all data-pick attributes
+        document.querySelectorAll('[data-pick]').forEach(el => {
+          el.removeAttribute('data-pick');
+        });
+      });
+
+      return clearButton;
+    }
+
     const toolbar = createToolbar()
     toolbar.appendChild(getPickButton());
+    toolbar.appendChild(getClearButton());
   }
 }
