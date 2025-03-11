@@ -139,7 +139,7 @@ export const injectToolbox = () => {
             overlay.id = 'mcp-highlight-overlay-preview';
             overlay.style.cssText = `
               position: fixed;
-              border: 2px solid #4CAF50;
+              border: 1px dashed #4CAF50;
               background: rgba(76, 175, 80, 0.1);
               pointer-events: none;
               z-index: 999998;
@@ -162,8 +162,8 @@ export const injectToolbox = () => {
           event.stopPropagation();
           event.preventDefault();
 
-          // Set data-pick attribute
-          element.setAttribute('data-pick', '');
+          // Call the exposed function to store the element
+          (window as any).onElementPicked(element.outerHTML);
 
           const overlay = document.querySelector('#mcp-highlight-overlay-preview');
           if (!overlay) return;
@@ -206,10 +206,8 @@ export const injectToolbox = () => {
           el.remove();
         });
 
-        // Remove all data-pick attributes
-        document.querySelectorAll('[data-pick]').forEach(el => {
-          el.removeAttribute('data-pick');
-        });
+        // Call the exposed function to clear picked elements
+        (window as any).clearPickedElements();
       });
 
       return clearButton;

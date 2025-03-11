@@ -10,6 +10,7 @@ import { injectToolbox } from "./toolbox.js";
 let browser: Browser;
 let context: BrowserContext;
 let page: Page;
+let pickedElements: string[] = [];
 
 const server = new McpServer({
   name: "playwright",
@@ -36,6 +37,16 @@ server.tool(
     context = await browser.newContext();
     page = await context.newPage();
 
+    // Expose the function to handle picked elements
+    await page.exposeFunction('onElementPicked', (elementHtml: string) => {
+      pickedElements.push(elementHtml);
+    });
+
+    // Expose the function to clear picked elements
+    await page.exposeFunction('clearPickedElements', () => {
+      pickedElements = [];
+    });
+
     await page.addInitScript(injectToolbox);
     await page.goto(url);
 
@@ -55,16 +66,14 @@ server.tool(
   "Get the DOM of the required element",
   {},
   async ({ }) => {
-    const dom = await page.evaluate(() => document.documentElement.outerHTML);
-    const window = parseDom(dom);
-    const elements = window.document.querySelectorAll('[data-pick]');
-    const content = Array.from(elements).map(element => element.outerHTML).join('\n---\n');
+    const elements = [...pickedElements]; // Create a copy
+    pickedElements = []; // Clear the list
 
     return {
       content: [
         {
           type: "text",
-          text: content,
+          text: elements.join('\n---\n') || 'No elements picked',
         },
       ],
     };
