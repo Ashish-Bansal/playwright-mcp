@@ -10,7 +10,7 @@ import { injectToolbox } from "./toolbox.js";
 let browser: Browser;
 let context: BrowserContext;
 let page: Page;
-let pickedElements: string[] = [];
+let messages: string[] = [];
 
 const server = new McpServer({
   name: "playwright",
@@ -38,13 +38,18 @@ server.tool(
     page = await context.newPage();
 
     // Expose the function to handle picked elements
-    await page.exposeFunction('onElementPicked', (elementHtml: string) => {
-      pickedElements.push(elementHtml);
+    await page.exposeFunction('onElementPicked', (message: string) => {
+      messages.push(message);
     });
 
     // Expose the function to clear picked elements
     await page.exposeFunction('clearPickedElements', () => {
-      pickedElements = [];
+      messages = [];
+    });
+
+    // Get current messages
+    await page.exposeFunction('getMessages', () => {
+      return messages;
     });
 
     await page.addInitScript(injectToolbox);
@@ -66,14 +71,14 @@ server.tool(
   "Get the DOM of the required element",
   {},
   async ({ }) => {
-    const elements = [...pickedElements]; // Create a copy
-    pickedElements = []; // Clear the list
+    const messagesToSend = [...messages]; // Create a copy
+    messages = []; // Clear the list
 
     return {
       content: [
         {
           type: "text",
-          text: elements.join('\n---\n') || 'No elements picked',
+          text: messagesToSend.join('\n---\n') || 'No messages',
         },
       ],
     };

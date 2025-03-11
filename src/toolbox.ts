@@ -5,84 +5,21 @@ export const injectToolbox = () => {
       return;
     }
 
-    // Create toolbar if it doesn't exist
-    if (document.querySelector('#mcp-toolbar')) {
+    // Create sidebar if it doesn't exist
+    if (document.querySelector('#mcp-sidebar')) {
       return
     }
 
-    const createToolbar = () => {
-      const toolbar = document.createElement('div');
-      toolbar.id = 'mcp-toolbar';
-      toolbar.style.cssText = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 999999;
-        background: #f5f5f5;
-        border: 1px solid rgb(228, 228, 231);
-        border-radius: 4px;
-        display: flex;
-        flex-direction: column;
+    const createMessage = (message: string) => {
+      const messageElement = document.createElement('div');
+      messageElement.style.cssText = `
+        padding: 4px;
+        border-bottom: 1px solid #eee;
+        word-break: break-all;
       `;
-
-      const dragBar = document.createElement('div');
-      dragBar.style.cssText = `
-        cursor: move;
-        padding: 8px 0;
-        background: transparent;
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: rgba(244, 244, 245, 0.3);
-        box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px;
-      `;
-
-      const dragBarIcon = document.createElement('div');
-      dragBarIcon.style.cssText = `
-        width: 40px;
-        height: 4px;
-        background: rgba(113, 113, 122, 0.3);
-        border-radius: 4px;
-      `;
-      dragBar.appendChild(dragBarIcon);
-
-      let isDragging = false;
-      let translateX = 0;
-      let translateY = 0;
-      let startX = 0;
-      let startY = 0;
-
-      dragBar.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startX = e.clientX - translateX;
-        startY = e.clientY - translateY;
-      });
-
-      document.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-          translateX = e.clientX - startX;
-          translateY = e.clientY - startY;
-          toolbar.style.transform = `translate(${translateX}px, ${translateY}px)`;
-        }
-      });
-
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
-
-      const content = document.createElement('div');
-      content.style.cssText = `
-        display: flex;
-        gap: 8px;
-        padding: 8px;
-        background: #fff;
-      `;
-
-      toolbar.appendChild(dragBar);
-      toolbar.appendChild(content);
-      document.body.appendChild(toolbar);
-      return content;
+      const truncatedMessage = message.length > 100 ? message.slice(0, 97) + '...' : message;
+      messageElement.textContent = truncatedMessage;
+      return messageElement;
     }
 
     const getPickButton = () => {
@@ -130,7 +67,7 @@ export const injectToolbox = () => {
         // Get element under cursor using document.elementFromPoint
         mouseMoveHandler = (e: MouseEvent) => {
           const element = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement;
-          if (!element || element.id === 'mcp-toolbar' || element.id === 'mcp-pick-button' || element.id.startsWith('mcp-highlight-overlay')) return;
+          if (!element || element.id === 'mcp-sidebar' || element.id === 'mcp-pick-button' || element.id.startsWith('mcp-highlight-overlay')) return;
 
           // Create or update highlight overlay
           let overlay: HTMLElement | null = document.querySelector('#mcp-highlight-overlay-preview');
@@ -157,27 +94,21 @@ export const injectToolbox = () => {
 
         clickHandler = (event: MouseEvent) => {
           const element = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement;
-          if (!element || element.id === 'mcp-toolbar' || element.id === 'mcp-pick-button' || element.id.startsWith('mcp-highlight-overlay')) return;
+          if (!element || element.id === 'mcp-sidebar' || element.id === 'mcp-pick-button' || element.id.startsWith('mcp-highlight-overlay')) return;
 
           event.stopPropagation();
           event.preventDefault();
 
+          const message = element.outerHTML;
+
+          // Add message to container
+          const messagesContainer = document.querySelector('#mcp-messages');
+          if (messagesContainer) {
+            messagesContainer.appendChild(createMessage(message));
+          }
+
           // Call the exposed function to store the element
-          (window as any).onElementPicked(element.outerHTML);
-
-          const overlay = document.querySelector('#mcp-highlight-overlay-preview');
-          if (!overlay) return;
-
-          // Create persistent overlay
-          const persistentOverlay = document.createElement('div');
-          persistentOverlay.id = `mcp-highlight-overlay-${Date.now()}`;
-          persistentOverlay.style.cssText = (overlay as HTMLElement).style.cssText;
-          const rect = element.getBoundingClientRect();
-          persistentOverlay.style.top = rect.top + 'px';
-          persistentOverlay.style.left = rect.left + 'px';
-          persistentOverlay.style.width = rect.width + 'px';
-          persistentOverlay.style.height = rect.height + 'px';
-          document.body.appendChild(persistentOverlay);
+          (window as any).onElementPicked(message);
         };
 
         document.addEventListener('mousemove', mouseMoveHandler);
@@ -201,10 +132,11 @@ export const injectToolbox = () => {
       `;
 
       clearButton.addEventListener('click', () => {
-        // Remove all overlays
-        document.querySelectorAll('[id^="mcp-highlight-overlay"]').forEach(el => {
-          el.remove();
-        });
+        // Clear messages container
+        const messagesContainer = document.querySelector('#mcp-messages');
+        if (messagesContainer) {
+          messagesContainer.innerHTML = '';
+        }
 
         // Call the exposed function to clear picked elements
         (window as any).clearPickedElements();
@@ -213,8 +145,82 @@ export const injectToolbox = () => {
       return clearButton;
     }
 
-    const toolbar = createToolbar()
-    toolbar.appendChild(getPickButton());
-    toolbar.appendChild(getClearButton());
+    const createSidebar = () => {
+      const sidebar = document.createElement('div');
+      sidebar.id = 'mcp-sidebar';
+      sidebar.style.cssText = `
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100vh;
+        background: #f5f5f5;
+        border-left: 1px solid rgb(228, 228, 231);
+        z-index: 999999;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      `;
+
+      // Header section
+      const header = document.createElement('div');
+      header.style.cssText = `
+        padding: 16px;
+        background: #fff;
+        border-bottom: 1px solid rgb(228, 228, 231);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      `;
+
+      const title = document.createElement('h3');
+      title.textContent = 'Element Picker';
+      title.style.cssText = `
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+        color: rgb(17, 24, 39);
+      `;
+      header.appendChild(title);
+      sidebar.appendChild(header);
+
+      // Tools section
+      const tools = document.createElement('div');
+      tools.style.cssText = `
+        padding: 16px;
+        background: #fff;
+        border-bottom: 1px solid rgb(228, 228, 231);
+        display: flex;
+        gap: 8px;
+      `;
+      tools.appendChild(getPickButton());
+      tools.appendChild(getClearButton());
+      sidebar.appendChild(tools);
+
+      // Messages section
+      const messagesContainer = document.createElement('div');
+      messagesContainer.id = 'mcp-messages';
+      messagesContainer.style.cssText = `
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        overflow-y: auto;
+      `;
+
+      sidebar.appendChild(messagesContainer);
+
+      document.body.appendChild(sidebar);
+      return { messagesContainer };
+    }
+
+    const { messagesContainer } = createSidebar();
+
+    (window as any).getMessages().then((messages: string[]) => {
+      messages.forEach(message => {
+        messagesContainer.appendChild(createMessage(message));
+      });
+    });
   }
 }
