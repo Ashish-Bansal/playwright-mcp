@@ -1,7 +1,11 @@
 {
+  "name": "playwright-mcp",
+  "version": "0.0.1",
+  "description": "Playwright integration for ModelContext",
   "type": "module",
+  "main": "build/index.js",
   "bin": {
-    "playwright": "./build/index.js"
+    "playwright-mcp": "./build/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -19,5 +23,13 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ashish-Bansal/playwright-mcp.git"
+  },
+  "author": "Ashish Bansal",
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -95,6 +95,7 @@ export const injectToolbox = () => {
         border: none;
         border-radius: 100px;
         cursor: pointer;
+        padding: 8px 16px;
       `;
 
       let isPicking = false;
@@ -196,6 +197,7 @@ export const injectToolbox = () => {
         border: none;
         border-radius: 100px;
         cursor: pointer;
+        padding: 8px 16px;
       `;
 
       clearButton.addEventListener('click', () => {
