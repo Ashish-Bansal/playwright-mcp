@@ -10,6 +10,13 @@ export const injectToolbox = () => {
       return
     }
 
+    const scrollToEnd = (container: HTMLElement) => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth'
+      });
+    };
+
     const createMessage = (message: string) => {
       const messageElement = document.createElement('div');
       messageElement.style.cssText = `
@@ -102,9 +109,10 @@ export const injectToolbox = () => {
           const message = element.outerHTML;
 
           // Add message to container
-          const messagesContainer = document.querySelector('#mcp-messages');
+          const messagesContainer = document.querySelector('#mcp-messages') as HTMLElement;
           if (messagesContainer) {
-            messagesContainer.appendChild(createMessage(message));
+            messagesContainer.appendChild(createMessage(message))
+            scrollToEnd(messagesContainer);
           }
 
           // Call the exposed function to store the element
@@ -159,7 +167,7 @@ export const injectToolbox = () => {
         z-index: 999999;
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
+        overflow: hidden;
       `;
 
       // Header section
@@ -211,6 +219,41 @@ export const injectToolbox = () => {
 
       sidebar.appendChild(messagesContainer);
 
+      // Input section
+      const inputContainer = document.createElement('div');
+      inputContainer.style.cssText = `
+        padding: 16px;
+        background: #fff;
+        border-top: 1px solid rgb(228, 228, 231);
+      `;
+
+      const textarea = document.createElement('textarea');
+      textarea.style.cssText = `
+        width: 100%;
+        padding: 8px;
+        border: 1px solid rgb(228, 228, 231);
+        border-radius: 4px;
+        resize: none;
+        height: 60px;
+        font-family: inherit;
+      `;
+
+      textarea.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const message = textarea.value.trim();
+          if (message) {
+            messagesContainer.appendChild(createMessage(message));
+            scrollToEnd(messagesContainer);
+            (window as any).onElementPicked(message);
+            textarea.value = '';
+          }
+        }
+      });
+
+      inputContainer.appendChild(textarea);
+      sidebar.appendChild(inputContainer);
+
       document.body.appendChild(sidebar);
       return { messagesContainer };
     }
@@ -221,6 +264,7 @@ export const injectToolbox = () => {
       messages.forEach(message => {
         messagesContainer.appendChild(createMessage(message));
       });
+      scrollToEnd(messagesContainer);
     });
   }
 }
