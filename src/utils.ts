@@ -1,11 +1,8 @@
-import { Window } from 'happy-dom'
+import { JSDOM } from 'jsdom'
 
 export const parseDom = (html: string) => {
-  const window = new Window({
-    settings: {
-      disableJavaScriptEvaluation: true,
-    },
+  const dom = new JSDOM(html, {
+    runScripts: 'outside-only'
   })
-  window.document.documentElement.innerHTML = html
-  return window
+  return dom.window
 }
