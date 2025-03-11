@@ -34,7 +34,9 @@ server.tool(
     browser = await chromium.launch({
       headless: false,
     });
-    context = await browser.newContext();
+    context = await browser.newContext({
+      viewport: null
+    });
     page = await context.newPage();
 
     // Expose the function to handle picked elements
