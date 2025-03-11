@@ -36,7 +36,7 @@ server.tool(
     context = await browser.newContext();
     page = await context.newPage();
 
-    page.addInitScript(injectToolbox);
+    await page.addInitScript(injectToolbox);
     await page.goto(url);
 
     return {
@@ -55,7 +55,6 @@ server.tool(
   "Get the DOM of the required element",
   {},
   async ({ }) => {
-    const page = context.pages()[0];
     const dom = await page.evaluate(() => document.documentElement.outerHTML);
     const window = parseDom(dom);
     const elements = window.document.querySelectorAll('[data-pick]');
@@ -77,7 +76,6 @@ server.tool(
   "Get the URL of a page",
   {},
   async ({ }) => {
-    const page = context.pages()[0];
     const url = page.url();
     return {
       content: [
@@ -97,7 +95,6 @@ server.tool(
     selector: z.string(),
   },
   async ({ selector }) => {
-    const page = context.pages()[0];
     const locator = page.locator(selector);
     const count = await locator.count();
     return {
