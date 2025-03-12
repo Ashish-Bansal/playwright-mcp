@@ -277,7 +277,7 @@ export const injectToolbox = () => {
   const getImageButton = () => {
     const imageButton = document.createElement('button');
     imageButton.id = 'mcp-image-button';
-    imageButton.innerHTML = `${maximizeIcon} <span style="margin-left: 8px;">Pick Image</span>`;
+    imageButton.innerHTML = `${imageIcon} <span style="margin-left: 8px;">Pick Image</span>`;
     imageButton.style.cssText = `
       color: rgb(9, 9, 11);
       border: 1px solid rgb(228, 228, 231);

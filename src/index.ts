@@ -168,37 +168,42 @@ server.tool(
         {
           type: "text",
           text: `URL: ${url}\n\nMessages:\n${messagesToReturn.map(m => `[${m.type}] ${m.content}`).join('\n---\n') || 'No messages'}`
-        }
+        },
       ]
     };
   }
 );
 
 server.tool(
-  "validate-selector",
-  "Validate a selector. Returns true if the selector is valid, false with an error message otherwise",
+  "validate-selectors",
+  "Validate multiple selectors. Returns validation results for each selector",
   {
-    selector: z.string(),
+    selectors: z.array(z.string()),
   },
-  async ({ selector }) => {
-    const locator = page.locator(selector);
-    const count = await locator.count();
-    if (count === 1) {
-      return {
-        content: [
-          {
-            type: "text",
-            text: "true",
-          },
-        ],
-      };
-    }
+  async ({ selectors }) => {
+    const results = await Promise.all(
+      selectors.map(async (selector) => {
+        const locator = page.locator(selector);
+        const count = await locator.count();
+        return {
+          selector,
+          isValid: count === 1,
+          count
+        };
+      })
+    );
+
+    const validationText = results
+      .map(({selector, isValid, count}) =>
+        `${selector}: ${isValid ? 'valid' : `invalid (${count} elements found)`}`
+      )
+      .join('\n');
 
     return {
       content: [
         {
           type: "text",
-          text: `false\n\n${count.toString()} elements found`,
+          text: validationText
         },
       ],
     };
