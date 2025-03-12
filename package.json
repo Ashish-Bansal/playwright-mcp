@@ -7,6 +7,13 @@
   "bin": {
     "playwright-mcp": "./build/index.js"
   },
+  "keywords": [
+    "playwright",
+    "mcp",
+    "modelcontextprotocol",
+    "test automation",
+    "playwright-mcp"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch --preserveWatchOutput"
