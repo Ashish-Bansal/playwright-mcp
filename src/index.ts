@@ -81,7 +81,35 @@ server.tool(
       content: [
         {
           type: "text",
-          text: `Browser initialized and navigated to ${url}`,
+          text: `Browser has been initialized and navigated to ${url}.
+          Let me share the flow of how this MCP server works. In the opened browser, user will nagivate to page for which they want to write testcases and then record
+          DOM and images for certain elements. This is context for writing the testcase.
+
+          Please follow this exact sequence of steps to write the testcase:
+          1. Use the "get-context" tool to obtain the context.
+          2. Use that context to write the testcase based on your prompt.
+          3. Once you have generated first version of the testcase, make sure you verify that all the selectors you've chosen are correct using the "validate-selectors" tool.
+
+          Here are the priorities for the attributes that you should use to write the testcase:
+
+          const ATTR_PRIORITIES = {
+            'id': 1,
+            'data-testid': 2,
+            'data-test-id': 2,
+            'data-pw': 2,
+            'data-cy': 2,
+            'data-id': 2,
+            'data-name': 3,
+            name: 3,
+            'aria-label': 3,
+            title: 3,
+            placeholder: 4,
+            href: 4,
+            alt: 4,
+            'data-index': 5,
+            'data-role': 5,
+            role: 5,
+          }`,
         },
       ],
     };
@@ -167,9 +195,9 @@ server.tool(
     }
 
     return {
-        content: [
-          {
-            type: "text",
+      content: [
+        {
+          type: "text",
           text: `false\n\n${count.toString()} elements found`,
         },
       ],
