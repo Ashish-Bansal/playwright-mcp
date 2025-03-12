@@ -1,4 +1,7 @@
 export const injectToolbox = () => {
+  const maximizeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>`;
+  const stopIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-stop"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`
+
   window.onload = () => {
     const inIframe = window.self !== window.top;
     if (inIframe) {
@@ -55,14 +58,18 @@ export const injectToolbox = () => {
     const getPickButton = () => {
       const pickButton = document.createElement('button');
       pickButton.id = 'mcp-pick-button';
-      pickButton.textContent = 'Start Picking';
+      pickButton.innerHTML = `${maximizeIcon} <span style="margin-left: 8px;">Pick DOM</span>`;
       pickButton.style.cssText = `
-        background: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 100px;
+        color: rgb(9, 9, 11);
+        border: 1px solid rgb(228, 228, 231);
+        border-radius: 6px;
+        box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px;
         cursor: pointer;
-        padding: 8px 16px;
+        height: 36px;
+        padding: 0 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       `;
 
       let isPicking = false;
@@ -83,16 +90,14 @@ export const injectToolbox = () => {
           if (previewOverlay) {
             previewOverlay.remove();
           }
-          pickButton.textContent = 'Start Picking';
-          pickButton.style.background = '#4CAF50';
           isPicking = false;
+          pickButton.innerHTML = `${maximizeIcon} <span style="margin-left: 8px;">Pick DOM</span>`;
           return;
         }
 
         // Start picking
         isPicking = true;
-        pickButton.textContent = 'Stop Picking';
-        pickButton.style.background = '#f44336';
+        pickButton.innerHTML = `${stopIcon} <span style="margin-left: 8px;">Stop Picking</span>`;
 
         // Get element under cursor using document.elementFromPoint
         mouseMoveHandler = (e: MouseEvent) => {
@@ -235,7 +240,7 @@ export const injectToolbox = () => {
       `;
 
       const title = document.createElement('h3');
-      title.textContent = 'Element Picker';
+      title.textContent = 'Playwright MCP';
       title.style.cssText = `
         margin: 0;
         font-size: 16px;
