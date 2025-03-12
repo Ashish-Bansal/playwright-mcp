@@ -4,7 +4,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { chromium, BrowserContext, Browser, Page } from "playwright";
-import { parseDom } from "./utils.js";
 import { injectToolbox } from "./toolbox.js";
 
 let browser: Browser;
@@ -131,19 +130,30 @@ server.tool(
 );
 
 server.tool(
-  "get-selector-count",
-  "Get the count of elements matching a selector",
+  "validate-selector",
+  "Validate a selector. Returns true if the selector is valid, false with an error message otherwise",
   {
     selector: z.string(),
   },
   async ({ selector }) => {
     const locator = page.locator(selector);
     const count = await locator.count();
+    if (count === 1) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: "true",
+          },
+        ],
+      };
+    }
+
     return {
-      content: [
-        {
-          type: "text",
-          text: count.toString(),
+        content: [
+          {
+            type: "text",
+          text: `false\n\n${count.toString()} elements found`,
         },
       ],
     };
