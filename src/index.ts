@@ -73,37 +73,22 @@ server.tool(
 )
 
 server.tool(
-  "get-dom",
-  "Get the DOM of the required element",
-  {},
-  async ({ }) => {
-    const messagesToSend = [...messages]; // Create a copy
-    messages = []; // Clear the list
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: messagesToSend.join('\n---\n') || 'No messages',
-        },
-      ],
-    };
-  }
-)
-
-server.tool(
-  "get-url",
-  "Get the URL of a page",
-  {},
-  async ({ }) => {
+  "get-context",
+  "Get the current URL and top N messages",
+  {
+    count: z.number().optional().describe('Number of messages to return')
+  },
+  async ({ count = 5 }) => {
     const url = page.url();
+    const messagesToReturn = messages.slice(-count);
+
     return {
       content: [
         {
           type: "text",
-          text: url,
-        },
-      ],
+          text: `URL: ${url}\n\nMessages:\n${messagesToReturn.join('\n---\n') || 'No messages'}`
+        }
+      ]
     };
   }
 );
