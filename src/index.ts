@@ -73,6 +73,43 @@ server.tool(
 )
 
 server.tool(
+  "get-full-dom",
+  "Get the full DOM of the current page. (Prefer using get-context instead)",
+  {},
+  async () => {
+    const html = await page.content();
+    return {
+      content: [
+        {
+          type: "text",
+          text: html,
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
+  'get-screenshot',
+  'Get a screenshot of the current page',
+  {},
+  async () => {
+    const screenshot = await page.screenshot({
+      type: "png",
+    });
+    return {
+      content: [
+        {
+          type: "image",
+          data: screenshot.toString('base64'),
+          mimeType: "image/png",
+        },
+      ],
+    };
+  }
+)
+
+server.tool(
   "get-context",
   "Get the current URL and top N messages",
   {
