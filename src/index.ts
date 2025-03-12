@@ -65,9 +65,13 @@ server.tool(
     });
 
     await page.exposeFunction('takeScreenshot', async (selector: string) => {
-      const screenshot = await page.locator(selector).screenshot({ path: 'screenshot.png' });
+      const screenshot = await page.locator(selector).screenshot({
+        path: 'screenshot.png',
+        timeout: 5000
+      });
       const base64Screenshot = screenshot.toString('base64');
       messages.push({ type: 'Image', content: base64Screenshot });
+      return base64Screenshot;
     });
 
     await page.addInitScript(injectToolbox);
