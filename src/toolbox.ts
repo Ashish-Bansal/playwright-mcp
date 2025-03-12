@@ -23,9 +23,32 @@ export const injectToolbox = () => {
         padding: 4px;
         border-bottom: 1px solid #eee;
         word-break: break-all;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       `;
+
+      const messageText = document.createElement('div');
       const truncatedMessage = message.length > 100 ? message.slice(0, 97) + '...' : message;
-      messageElement.textContent = truncatedMessage;
+      messageText.textContent = truncatedMessage;
+
+      const deleteButton = document.createElement('button');
+      deleteButton.innerHTML = '&times;';
+      deleteButton.style.cssText = `
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 0 4px;
+        font-size: 16px;
+      `;
+      deleteButton.addEventListener('click', () => {
+        messageElement.remove();
+        (window as any).deleteMessage(message);
+      });
+
+      messageElement.appendChild(messageText);
+      messageElement.appendChild(deleteButton);
       return messageElement;
     }
 

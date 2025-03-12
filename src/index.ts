@@ -44,6 +44,10 @@ server.tool(
       messages.push(message);
     });
 
+    await page.exposeFunction('deleteMessage', (message: string) => {
+      messages = messages.filter(m => m !== message);
+    });
+
     // Expose the function to clear picked elements
     await page.exposeFunction('clearPickedElements', () => {
       messages = [];
