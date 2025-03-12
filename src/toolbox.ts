@@ -29,7 +29,7 @@ export const injectToolbox = () => {
       `;
 
       const messageText = document.createElement('div');
-      const truncatedMessage = message.length > 100 ? message.slice(0, 97) + '...' : message;
+      const truncatedMessage = message.length > 300 ? message.slice(0, 297) + '...' : message;
       messageText.textContent = truncatedMessage;
 
       const deleteButton = document.createElement('button');
