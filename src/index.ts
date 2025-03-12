@@ -65,13 +65,17 @@ server.tool(
     });
 
     await page.exposeFunction('takeScreenshot', async (selector: string) => {
-      const screenshot = await page.locator(selector).screenshot({
-        path: 'screenshot.png',
-        timeout: 5000
-      });
-      const base64Screenshot = screenshot.toString('base64');
-      messages.push({ type: 'Image', content: base64Screenshot });
-      return base64Screenshot;
+      try {
+        const screenshot = await page.locator(selector).screenshot({
+          timeout: 5000
+        });
+        const base64Screenshot = screenshot.toString('base64');
+        messages.push({ type: 'Image', content: base64Screenshot });
+        return base64Screenshot;
+      } catch (error) {
+        console.error('Error taking screenshot', error);
+        return null;
+      }
     });
 
     await page.addInitScript(injectToolbox);
@@ -155,21 +159,55 @@ server.tool(
 
 server.tool(
   "get-context",
-  "Get the current URL and top N messages",
-  {
-    count: z.number().optional().describe('Number of messages to return')
-  },
-  async ({ count = 5 }) => {
+  "Get the current URL and user defined context which would be used to write the testcase",
+  {},
+  async () => {
     const url = page.url();
-    const messagesToReturn = messages.slice(-count);
+    const message = messages[0]; // Get first element
+
+    if (!message) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `URL: ${url}\n\nNo messages available`
+          }
+        ]
+      };
+    }
+
+    // Remove first message from array
+    messages.shift();
+
+    const remainingCount = messages.length;
+    let textContent = `URL: ${url}\n\n`;
+    if (remainingCount > 0) {
+      textContent += `Remaining ${remainingCount} messages, please fetch those one by one.\n\n`;
+    }
+
+    if (message.type === 'DOM') {
+      textContent += `DOM: ${message.content}`;
+    } else if (message.type === 'Text') {
+      textContent += `Text: ${message.content}`;
+    }
+
+    const content: any = [
+      {
+        type: "text",
+        text: textContent
+      },
+    ]
+
+    if (message.type === 'Image') {
+      content.push({
+        type: "image",
+        data: message.content,
+        mimeType: "image/png"
+      })
+    }
 
     return {
-      content: [
-        {
-          type: "text",
-          text: `URL: ${url}\n\nMessages:\n${messagesToReturn.map(m => `[${m.type}] ${m.content}`).join('\n---\n') || 'No messages'}`
-        },
-      ]
+      content
     };
   }
 );
