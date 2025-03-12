@@ -6,10 +6,17 @@ import { z } from "zod";
 import { chromium, BrowserContext, Browser, Page } from "playwright";
 import { injectToolbox } from "./toolbox.js";
 
+type MessageType = 'DOM' | 'Text' | 'Image';
+
+interface Message {
+  type: MessageType;
+  content: string;
+}
+
 let browser: Browser;
 let context: BrowserContext;
 let page: Page;
-let messages: string[] = [];
+let messages: Message[] = [];
 
 const server = new McpServer({
   name: "playwright",
@@ -40,11 +47,11 @@ server.tool(
 
     // Expose the function to handle picked elements
     await page.exposeFunction('onElementPicked', (message: string) => {
-      messages.push(message);
+      messages.push({ type: 'DOM', content: message });
     });
 
     await page.exposeFunction('deleteMessage', (message: string) => {
-      messages = messages.filter(m => m !== message);
+      messages = messages.filter(m => m.content !== message);
     });
 
     // Expose the function to clear picked elements
@@ -55,6 +62,12 @@ server.tool(
     // Get current messages
     await page.exposeFunction('getMessages', () => {
       return messages;
+    });
+
+    await page.exposeFunction('takeScreenshot', async (selector: string) => {
+      const screenshot = await page.locator(selector).screenshot({ path: 'screenshot.png' });
+      const base64Screenshot = screenshot.toString('base64');
+      messages.push({ type: 'Image', content: base64Screenshot });
     });
 
     await page.addInitScript(injectToolbox);
@@ -122,7 +135,7 @@ server.tool(
       content: [
         {
           type: "text",
-          text: `URL: ${url}\n\nMessages:\n${messagesToReturn.join('\n---\n') || 'No messages'}`
+          text: `URL: ${url}\n\nMessages:\n${messagesToReturn.map(m => `[${m.type}] ${m.content}`).join('\n---\n') || 'No messages'}`
         }
       ]
     };

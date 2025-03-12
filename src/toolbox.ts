@@ -2,6 +2,108 @@ export const injectToolbox = () => {
   const maximizeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>`;
   const stopIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-stop"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>`
 
+  interface Message {
+    type: 'DOM' | 'Text' | 'Image';
+    content: string;
+  }
+
+  const createMessageElement = (message: Message) => {
+    const messageElement = document.createElement('div');
+    messageElement.style.cssText = `
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      word-break: break-all;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    `;
+
+    const header = document.createElement('div');
+    header.style.cssText = `
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    `;
+
+    const typeLabel = document.createElement('span');
+    typeLabel.style.cssText = `
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    `;
+
+    switch (message.type) {
+      case 'DOM':
+        typeLabel.textContent = `DOM (${message.content.length} chars)`;
+        typeLabel.style.backgroundColor = '#e3f2fd';
+        typeLabel.style.color = '#1976d2';
+        break;
+      case 'Text':
+        typeLabel.textContent = 'Text';
+        typeLabel.style.backgroundColor = '#e8f5e9';
+        typeLabel.style.color = '#388e3c';
+        break;
+      case 'Image':
+        typeLabel.textContent = 'Image';
+        typeLabel.style.backgroundColor = '#e8f5e9';
+        typeLabel.style.color = '#388e3c';
+        break;
+    }
+
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = '&times;';
+    deleteButton.style.cssText = `
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 0 4px;
+      font-size: 16px;
+    `;
+    deleteButton.addEventListener('click', () => {
+      messageElement.remove();
+      (window as any).deleteMessage(message.content);
+    });
+
+    header.appendChild(typeLabel);
+    header.appendChild(deleteButton);
+    messageElement.appendChild(header);
+
+    const content = document.createElement('div');
+    switch (message.type) {
+      case 'Image':
+        const img = document.createElement('img');
+        img.src = `data:image/png;base64,${message.content}`;
+        img.style.cssText = `
+          max-width: 100%;
+          border-radius: 4px;
+        `;
+        content.appendChild(img);
+        break;
+      case 'DOM':
+        const truncatedDOM = message.content.length > 300 ? message.content.slice(0, 297) + '...' : message.content;
+        content.textContent = truncatedDOM;
+        content.style.fontFamily = 'monospace';
+        content.style.fontSize = '12px';
+        break;
+      case 'Text':
+        const truncatedText = message.content.length > 300 ? message.content.slice(0, 297) + '...' : message.content;
+        content.textContent = truncatedText;
+        break;
+    }
+
+    messageElement.appendChild(content);
+    return messageElement;
+  }
+
+  const scrollToEnd = (container: HTMLElement) => {
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth'
+    });
+  };
+
   window.onload = () => {
     const inIframe = window.self !== window.top;
     if (inIframe) {
@@ -11,48 +113,6 @@ export const injectToolbox = () => {
     // Create sidebar if it doesn't exist
     if (document.querySelector('#mcp-sidebar')) {
       return
-    }
-
-    const scrollToEnd = (container: HTMLElement) => {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth'
-      });
-    };
-
-    const createMessage = (message: string) => {
-      const messageElement = document.createElement('div');
-      messageElement.style.cssText = `
-        padding: 4px;
-        border-bottom: 1px solid #eee;
-        word-break: break-all;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      `;
-
-      const messageText = document.createElement('div');
-      const truncatedMessage = message.length > 300 ? message.slice(0, 297) + '...' : message;
-      messageText.textContent = truncatedMessage;
-
-      const deleteButton = document.createElement('button');
-      deleteButton.innerHTML = '&times;';
-      deleteButton.style.cssText = `
-        background: none;
-        border: none;
-        color: #666;
-        cursor: pointer;
-        padding: 0 4px;
-        font-size: 16px;
-      `;
-      deleteButton.addEventListener('click', () => {
-        messageElement.remove();
-        (window as any).deleteMessage(message);
-      });
-
-      messageElement.appendChild(messageText);
-      messageElement.appendChild(deleteButton);
-      return messageElement;
     }
 
     const getPickButton = () => {
@@ -102,7 +162,12 @@ export const injectToolbox = () => {
         // Get element under cursor using document.elementFromPoint
         mouseMoveHandler = (e: MouseEvent) => {
           const element = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement;
-          if (!element || element.id === 'mcp-sidebar' || element.id === 'mcp-pick-button' || element.id.startsWith('mcp-highlight-overlay')) return;
+          const sidebar = document.querySelector('#mcp-sidebar');
+          const expandButton = document.querySelector('#mcp-sidebar-toggle-button');
+          if (!element ||
+            (sidebar && sidebar.contains(element)) ||
+            (expandButton && expandButton.contains(element)) ||
+            element.closest('[id^="mcp-highlight-overlay"]')) return;
 
           // Create or update highlight overlay
           let overlay: HTMLElement | null = document.querySelector('#mcp-highlight-overlay-preview');
@@ -129,22 +194,30 @@ export const injectToolbox = () => {
 
         clickHandler = (event: MouseEvent) => {
           const element = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement;
-          if (!element || element.id === 'mcp-sidebar' || element.id === 'mcp-pick-button' || element.id.startsWith('mcp-highlight-overlay')) return;
+          const sidebar = document.querySelector('#mcp-sidebar');
+          const expandButton = document.querySelector('#mcp-sidebar-toggle-button');
+          if (!element ||
+            (sidebar && sidebar.contains(element)) ||
+            (expandButton && expandButton.contains(element)) ||
+            element.closest('[id^="mcp-highlight-overlay"]')) return;
 
           event.stopPropagation();
           event.preventDefault();
 
-          const message = element.outerHTML;
+          const message = {
+            type: 'DOM' as const,
+            content: element.outerHTML
+          };
 
           // Add message to container
           const messagesContainer = document.querySelector('#mcp-messages') as HTMLElement;
           if (messagesContainer) {
-            messagesContainer.appendChild(createMessage(message))
+            messagesContainer.appendChild(createMessageElement(message))
             scrollToEnd(messagesContainer);
           }
 
           // Call the exposed function to store the element
-          (window as any).onElementPicked(message);
+          (window as any).onElementPicked(message.content);
         };
 
         document.addEventListener('mousemove', mouseMoveHandler);
@@ -152,33 +225,6 @@ export const injectToolbox = () => {
       });
 
       return pickButton;
-    }
-
-    const getClearButton = () => {
-      const clearButton = document.createElement('button');
-      clearButton.id = 'mcp-clear-button';
-      clearButton.textContent = 'Clear All';
-      clearButton.style.cssText = `
-        background: #f44336;
-        color: white;
-        border: none;
-        border-radius: 100px;
-        cursor: pointer;
-        padding: 8px 16px;
-      `;
-
-      clearButton.addEventListener('click', () => {
-        // Clear messages container
-        const messagesContainer = document.querySelector('#mcp-messages');
-        if (messagesContainer) {
-          messagesContainer.innerHTML = '';
-        }
-
-        // Call the exposed function to clear picked elements
-        (window as any).clearPickedElements();
-      });
-
-      return clearButton;
     }
 
     const createSidebar = () => {
@@ -201,6 +247,7 @@ export const injectToolbox = () => {
 
       // Toggle button on the left side
       const toggleButton = document.createElement('button');
+      toggleButton.id = 'mcp-sidebar-toggle-button';
       toggleButton.textContent = '⟩';
       toggleButton.style.cssText = `
         position: fixed;
@@ -219,13 +266,24 @@ export const injectToolbox = () => {
         transition: right 0.3s ease;
       `;
 
-      let isExpanded = true;
+      // Initialize isExpanded from localStorage or default to true
+      let isExpanded = localStorage.getItem('mcp-sidebar-expanded') !== 'false';
+
+      // Set initial state
+      if (!isExpanded) {
+        sidebar.style.transform = 'translateX(300px)';
+        toggleButton.style.right = '0';
+        toggleButton.textContent = '⟨';
+      }
+
       toggleButton.addEventListener('click', () => {
-        console.log('button toggled');
         isExpanded = !isExpanded;
         sidebar.style.transform = isExpanded ? 'translateX(0)' : 'translateX(300px)';
         toggleButton.style.right = isExpanded ? '300px' : '0';
         toggleButton.textContent = isExpanded ? '⟩' : '⟨';
+
+        // Save state to localStorage
+        localStorage.setItem('mcp-sidebar-expanded', isExpanded.toString());
       });
 
       // Header section
@@ -261,7 +319,6 @@ export const injectToolbox = () => {
         gap: 8px;
       `;
       tools.appendChild(getPickButton());
-      tools.appendChild(getClearButton());
       sidebar.appendChild(tools);
 
       // Messages section
@@ -300,11 +357,15 @@ export const injectToolbox = () => {
       textarea.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
           e.preventDefault();
-          const message = textarea.value.trim();
-          if (message) {
-            messagesContainer.appendChild(createMessage(message));
+          const text = textarea.value.trim();
+          if (text) {
+            const message = {
+              type: 'Text' as const,
+              content: text
+            };
+            messagesContainer.appendChild(createMessageElement(message));
             scrollToEnd(messagesContainer);
-            (window as any).onElementPicked(message);
+            (window as any).onElementPicked(message.content);
             textarea.value = '';
           }
         }
@@ -320,9 +381,9 @@ export const injectToolbox = () => {
 
     const { messagesContainer } = createSidebar();
 
-    (window as any).getMessages().then((messages: string[]) => {
+    (window as any).getMessages().then((messages: Message[]) => {
       messages.forEach(message => {
-        messagesContainer.appendChild(createMessage(message));
+        messagesContainer.appendChild(createMessageElement(message));
       });
       scrollToEnd(messagesContainer);
     });
