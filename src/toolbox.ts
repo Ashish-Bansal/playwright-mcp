@@ -168,7 +168,37 @@ export const injectToolbox = () => {
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        transition: transform 0.3s ease;
       `;
+
+      // Toggle button on the left side
+      const toggleButton = document.createElement('button');
+      toggleButton.textContent = '⟩';
+      toggleButton.style.cssText = `
+        position: fixed;
+        right: 300px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #f5f5f5;
+        border: 1px solid rgb(228, 228, 231);
+        border-right: none;
+        border-radius: 4px 0 0 4px;
+        font-size: 20px;
+        cursor: pointer;
+        padding: 8px;
+        color: rgb(17, 24, 39);
+        z-index: 999999;
+        transition: right 0.3s ease;
+      `;
+
+      let isExpanded = true;
+      toggleButton.addEventListener('click', () => {
+        console.log('button toggled');
+        isExpanded = !isExpanded;
+        sidebar.style.transform = isExpanded ? 'translateX(0)' : 'translateX(300px)';
+        toggleButton.style.right = isExpanded ? '300px' : '0';
+        toggleButton.textContent = isExpanded ? '⟩' : '⟨';
+      });
 
       // Header section
       const header = document.createElement('div');
@@ -189,6 +219,7 @@ export const injectToolbox = () => {
         font-weight: 500;
         color: rgb(17, 24, 39);
       `;
+
       header.appendChild(title);
       sidebar.appendChild(header);
 
@@ -255,6 +286,7 @@ export const injectToolbox = () => {
       sidebar.appendChild(inputContainer);
 
       document.body.appendChild(sidebar);
+      document.body.appendChild(toggleButton);
       return { messagesContainer };
     }
 
