@@ -1,7 +1,7 @@
 # How to Use playwright-mcp?
 
 ## Introduction
-playwright-mcp (Model Control Protocol) is a powerful tool that bridges the gap between AI assistants and browser automation. It enables AI models to interact with web browsers, inspect DOM elements, and generate Playwright test scripts with higher accuracy. This guide will walk you through setting up and using playwright-mcp effectively.
+playwright-mcp (Model Context Protocol) is a powerful tool that bridges the gap between AI assistants and browser automation. It enables AI models to interact with web browsers, inspect DOM elements, and generate Playwright test scripts with higher accuracy. This guide will walk you through setting up and using playwright-mcp effectively.
 
 ## Tools
 Available tools in the browser interface:
@@ -21,7 +21,7 @@ Available tools in the browser interface:
 ## Prerequisites
 - Node.js installed on your system
 - Playwright and its Chromium browser installed on your system
-- An IDE that supports MCP (Model Control Protocol) such as Cursor
+- An IDE that supports MCP (Model Context Protocol) such as Cursor
 - Good familiarity with Playwright testing framework
 
 ## Setup Instructions

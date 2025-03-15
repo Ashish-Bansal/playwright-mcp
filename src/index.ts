@@ -5,6 +5,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { chromium, BrowserContext, Browser, Page } from "playwright";
 import { injectToolbox } from "./toolbox.js";
+import { secureEvalAsync } from "./eval.js";
 
 type MessageType = 'DOM' | 'Text' | 'Image';
 
@@ -153,6 +154,39 @@ server.tool(
           mimeType: "image/png",
         },
       ],
+    };
+  }
+)
+
+server.tool(
+  'execute-code',
+  'Execute custom Playwright JS code against the current page',
+  {
+    code: z.string().describe(`The Playwright code to execute. Must be an async function declaration that takes a page parameter.
+
+Example:
+async function run(page) {
+  console.log(await page.title());
+  return await page.title();
+}
+
+Returns an object with:
+- result: The return value from your function
+- logs: Array of console logs from execution
+- errors: Array of any errors encountered
+
+Example response:
+{"result": "Google", "logs": ["[log] Google"], "errors": []}`)
+  },
+  async ({ code }) => {
+    const result = await secureEvalAsync(page, code);
+    return {
+      content: [
+        {
+          type: "text",
+          text: JSON.stringify(result, null, 2) // Pretty print the JSON
+        }
+      ]
     };
   }
 )
