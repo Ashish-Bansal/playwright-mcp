@@ -1,7 +1,4 @@
-#!/usr/bin/env node
-
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { chromium, BrowserContext, Browser, Page } from "playwright";
 import { injectToolbox } from "./toolbox.js";
@@ -282,15 +279,4 @@ server.tool(
   }
 );
 
-async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("MCP Server started");
-}
-
-main().catch((error) => {
-  console.error("Fatal error in main", error);
-  context.close();
-  browser.close();
-  process.exit(1);
-});
+export { server }
