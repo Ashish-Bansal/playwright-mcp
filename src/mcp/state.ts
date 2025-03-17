@@ -1,5 +1,5 @@
 import type { Page } from "playwright";
-type MessageType = 'DOM' | 'Text' | 'Image';
+type MessageType = 'DOM' | 'Text' | 'Image' | 'Interaction';
 type PickingType = 'DOM' | 'Image';
 
 interface Message {
@@ -10,6 +10,7 @@ interface Message {
 let globalState = {
   messages: [] as Message[],
   pickingType: null as PickingType | null,
+  recordingInteractions: false as boolean,
 }
 
 async function initState(page: Page) {

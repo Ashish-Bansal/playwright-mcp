@@ -2,7 +2,7 @@ import React from 'react';
 import { X } from 'lucide-react';
 
 export interface Message {
-  type: 'DOM' | 'Text' | 'Image';
+  type: 'DOM' | 'Text' | 'Image' | 'Interaction';
   content: string;
 }
 
@@ -24,6 +24,12 @@ const MessageComponent: React.FC<MessageProps> = ({ message, onDelete }) => {
       case 'Image':
         return {
           label: message.type,
+          backgroundColor: '#e8f5e9',
+          color: '#388e3c'
+        };
+      case 'Interaction':
+        return {
+          label: 'Interaction',
           backgroundColor: '#e8f5e9',
           color: '#388e3c'
         };

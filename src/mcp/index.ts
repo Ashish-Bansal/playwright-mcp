@@ -3,7 +3,7 @@ import { z } from "zod";
 import { chromium, BrowserContext, Browser, Page } from "playwright";
 import { injectToolbox } from "./toolbox.js";
 import { secureEvalAsync } from "./eval.js";
-import { initState, getState, updateState, type Message } from "./store.js";
+import { initState, getState, updateState, type Message } from "./state.js";
 import { initRecording } from "./recording";
 
 let browser: Browser;
@@ -69,10 +69,29 @@ server.tool(
       }
     });
 
+    await page.exposeFunction('executeCode', async (code: string) => {
+      const result = await secureEvalAsync(page, code);
+      return result;
+    });
+
     await initState(page);
     await initRecording(page, (event: any) => {
-      console.error(event.type, event.eventId);
+      const state = getState();
+      if (!state.recordingInteractions) {
+        return;
+      }
+
+      state.messages.push({
+        type: 'Interaction',
+        content: JSON.stringify({
+          type: event.type,
+          eventId: event.eventId,
+          timestamp: event.timestamp,
+        }),
+      });
+      updateState(page, state);
     });
+
     await page.addInitScript(injectToolbox);
     await page.goto(url);
 
