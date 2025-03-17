@@ -180,12 +180,17 @@ export const initRecording = async (
       }
     }
 
+    function removeAttributesFromNode(node: Node): void {
+      if (node.nodeType === window.Node.ELEMENT_NODE) {
+        const element = node as unknown as Element
+        element.removeAttribute('uuid')
+      }
+    }
+
     // Event handlers
     const recordedEvents = new WeakMap<MouseEvent, boolean>();
 
     function handleClick(e: MouseEvent): void {
-      addAttributesToNode(document.documentElement);
-
       // Check if event was already recorded
       if (recordedEvents.get(e)) {
         return;
@@ -197,6 +202,7 @@ export const initRecording = async (
       const target = e.target as Element;
       if (!target) return;
 
+      addAttributesToNode(document.documentElement);
       const elementUUID = target.getAttribute('uuid');
       const dom = getDom();
 
@@ -204,6 +210,7 @@ export const initRecording = async (
         // Re-dispatch the event after recording
         target.dispatchEvent(e);
       });
+      removeAttributesFromNode(document.documentElement);
     }
 
     function handleKeyDown(event: KeyboardEvent): void {
