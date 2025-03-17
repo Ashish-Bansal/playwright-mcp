@@ -11,6 +11,10 @@ let globalState = {
   messages: [] as Message[],
   pickingType: null as PickingType | null,
   recordingInteractions: false as boolean,
+  code: `async function run(page) {
+    let title = await page.title();
+    return title
+}` as string,
 }
 
 async function initState(page: Page) {

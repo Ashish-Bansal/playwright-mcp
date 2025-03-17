@@ -5,20 +5,18 @@ import { highlight, languages } from 'prismjs/components/prism-core';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism.css';
+import { Button } from '@/components/ui/button';
+import { useGlobalState } from '@/hooks/use-global-stage';
 
 const Execute: React.FC = () => {
-  const [code, setCode] = useState<string>(
-`async function run(page) {
-    let title = await page.title();
-    return title
-}`);
+  const [state, updateState] = useGlobalState();
   const [result, setResult] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [logs, setLogs] = useState<string[]>([]);
 
   const executeCode = async () => {
     try {
-      const response = await (window as any).executeCode(code);
+      const response = await (window as any).executeCode(state.code);
       if (response.error) {
         setError(response.message);
         setResult('');
@@ -38,8 +36,8 @@ const Execute: React.FC = () => {
     <div className="flex-1 flex flex-col">
       <div className="p-4 bg-white border-b border-zinc-200">
         <Editor
-          value={code}
-          onValueChange={code => setCode(code)}
+          value={state.code}
+          onValueChange={code => updateState({ ...state, code })}
           highlight={code => highlight(code, languages.js)}
           padding={10}
           className="font-mono mb-4 min-h-[200px] border rounded-md"
@@ -48,13 +46,14 @@ const Execute: React.FC = () => {
             fontSize: 14,
           }}
         />
-        <button
+        <Button
           onClick={executeCode}
-          className="text-zinc-900 border border-zinc-200 rounded-md cursor-pointer h-9 px-3 flex items-center justify-center gap-2 hover:bg-zinc-50"
+          variant="outline"
+          className="gap-2"
         >
           <Play size={20} />
           <span>Execute</span>
-        </button>
+        </Button>
       </div>
       <div className="flex-1 p-4 space-y-4">
         {error && (
