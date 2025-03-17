@@ -4,6 +4,7 @@ import { chromium, BrowserContext, Browser, Page } from "playwright";
 import { injectToolbox } from "./toolbox.js";
 import { secureEvalAsync } from "./eval.js";
 import { initState, getState, updateState, type Message } from "./store.js";
+import { initRecording } from "./recording";
 
 let browser: Browser;
 let context: BrowserContext;
@@ -69,6 +70,9 @@ server.tool(
     });
 
     await initState(page);
+    await initRecording(page, (event: any) => {
+      console.error(event.type, event.eventId);
+    });
     await page.addInitScript(injectToolbox);
     await page.goto(url);
 
