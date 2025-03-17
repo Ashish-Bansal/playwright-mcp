@@ -18,11 +18,16 @@ let globalState = {
 }
 
 async function initState(page: Page) {
-  page.exposeFunction('notifyNode', (state: any) => {
-    globalState = structuredClone(state);
+  // function to notify Node.js from React
+  await page.exposeFunction('updateGlobalState', (state: any) => {
+    updateState(page, state);
   });
 
-  page.addInitScript((state) => {
+  await page.exposeFunction('triggerSyncToReact', () => {
+    updateState(page, getState());
+  });
+
+  await page.addInitScript((state) => {
     if (window.globalState) {
       return
     }
@@ -33,13 +38,6 @@ async function initState(page: Page) {
     // function to notify other components
     window.notifyStateSubscribers = () => {
       window.stateSubscribers.forEach(cb => cb(window.globalState));
-    };
-
-    // function to notify Node.js from React
-    window.updateGlobalState = (state: any) => {
-      window.globalState = { ...state };
-      window.notifyStateSubscribers();
-      window.notifyNode(state);
     };
   }, globalState);
 }

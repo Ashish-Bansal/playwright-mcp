@@ -17,7 +17,7 @@ declare global {
     stateSubscribers: ((state: any) => void)[];
     notifyStateSubscribers: () => void;
     updateGlobalState: (state: any) => void;
-    notifyNode: (state: any) => void;
+    triggerSyncToReact: () => void;
     // for recording
     recordDOM: (dom: string, elementUUID: string) => Promise<void>;
     recordInput: (dom: string, elementUUID: string, value: string) => Promise<void>;

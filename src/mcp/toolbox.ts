@@ -141,7 +141,7 @@ export const injectToolbox = () => {
     window.mcpStopPicking = mcpStopPicking;
 
     const getSidebarWidth = () => {
-      const defaultWidth = localStorage.getItem('mcp-sidebar-width') || '300';
+      const defaultWidth = localStorage.getItem('mcp-sidebar-width') || '500';
       return parseInt(defaultWidth);
     }
 
