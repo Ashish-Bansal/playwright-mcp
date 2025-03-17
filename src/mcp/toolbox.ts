@@ -1,5 +1,11 @@
+interface PickingState {
+  activePickingType: 'DOM' | 'Image' | null;
+  mouseMoveHandler: ((e: MouseEvent) => void) | null;
+  clickHandler: ((e: MouseEvent) => void) | null;
+}
+
 export const injectToolbox = () => {
-  window.onload = () => {
+  window.addEventListener('load', function() {
     const inIframe = window.self !== window.top;
     if (inIframe) {
       return;
@@ -7,8 +13,132 @@ export const injectToolbox = () => {
 
     // Create sidebar if it doesn't exist
     if (document.querySelector('#mcp-sidebar')) {
-      return
+      return;
     }
+
+    const pickingState: PickingState = {
+      activePickingType: null,
+      mouseMoveHandler: null,
+      clickHandler: null
+    };
+
+    const toggleSidebar = (expanded: boolean) => {
+      const sidebar = document.querySelector('#mcp-sidebar') as HTMLElement;
+      const toggleButton = document.querySelector('#mcp-sidebar-toggle-button') as HTMLElement;
+      if (sidebar && toggleButton) {
+        const width = parseInt(sidebar.style.width);
+        sidebar.style.transform = expanded ? 'translateX(0)' : `translateX(${width}px)`;
+        toggleButton.style.right = expanded ? `${width}px` : '0';
+        toggleButton.textContent = expanded ? '⟩' : '⟨';
+        localStorage.setItem('mcp-sidebar-expanded', expanded.toString());
+      }
+    };
+
+    const mcpStopPicking = () => {
+      // Stop picking
+      if (pickingState.mouseMoveHandler) {
+        document.removeEventListener('mousemove', pickingState.mouseMoveHandler);
+      }
+      if (pickingState.clickHandler) {
+        document.removeEventListener('click', pickingState.clickHandler, true);
+      }
+      // Remove preview overlay if it exists
+      const previewOverlay = document.querySelector('#mcp-highlight-overlay-preview');
+      if (previewOverlay) {
+        previewOverlay.remove();
+      }
+      pickingState.activePickingType = null;
+
+      // Restore sidebar state
+      toggleSidebar(true);
+    };
+
+    const mcpStartPicking = (pickingType: 'DOM' | 'Image') => {
+      pickingState.activePickingType = pickingType;
+
+      // Collapse sidebar when picking starts
+      toggleSidebar(false);
+
+      pickingState.mouseMoveHandler = (e: MouseEvent) => {
+        const element = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement;
+        const sidebar = document.querySelector('#mcp-sidebar');
+        const expandButton = document.querySelector('#mcp-sidebar-toggle-button');
+        if (!element ||
+          (sidebar && sidebar.contains(element)) ||
+          (expandButton && expandButton.contains(element)) ||
+          element.closest('[id^="mcp-highlight-overlay"]')) return;
+
+        // Create or update highlight overlay
+        let overlay: HTMLElement | null = document.querySelector('#mcp-highlight-overlay-preview');
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.id = 'mcp-highlight-overlay-preview';
+          overlay.style.cssText = `
+            position: fixed;
+            border: 1px dashed #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+            pointer-events: none;
+            z-index: 999998;
+            transition: all 0.2s ease;
+          `;
+          document.body.appendChild(overlay);
+        }
+
+        const rect = element.getBoundingClientRect();
+        overlay.style.top = rect.top + 'px';
+        overlay.style.left = rect.left + 'px';
+        overlay.style.width = rect.width + 'px';
+        overlay.style.height = rect.height + 'px';
+      };
+
+      pickingState.clickHandler = async (event: MouseEvent) => {
+        const element = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement;
+        const sidebar = document.querySelector('#mcp-sidebar');
+        const expandButton = document.querySelector('#mcp-sidebar-toggle-button');
+        if (!element ||
+          (sidebar && sidebar.contains(element)) ||
+          (expandButton && expandButton.contains(element)) ||
+          element.closest('[id^="mcp-highlight-overlay"]')) return;
+
+        event.stopPropagation();
+        event.preventDefault();
+
+        let message: Message;
+        if (pickingState.activePickingType === 'DOM') {
+          const html = element.outerHTML;
+          message = {
+            type: 'DOM',
+            content: html
+          };
+        } else {
+          const previewOverlay = document.querySelector('#mcp-highlight-overlay-preview') as HTMLElement;
+          if (previewOverlay) {
+            previewOverlay.style.display = 'none';
+          }
+          const screenshotId = `screenshot-${Math.random().toString(36).substring(2)}`;
+          element.setAttribute('data-screenshot-id', screenshotId);
+          const screenshot = await (window as any).takeScreenshot(`[data-screenshot-id="${screenshotId}"]`);
+          element.removeAttribute('data-screenshot-id');
+          if (previewOverlay) {
+            previewOverlay.style.display = 'block';
+          }
+          message = {
+            type: 'Image',
+            content: screenshot
+          };
+        }
+
+        mcpStopPicking();
+        (window as any).onElementPicked(message);
+      };
+
+      document.addEventListener('mousemove', pickingState.mouseMoveHandler);
+      document.addEventListener('click', pickingState.clickHandler, true);
+    };
+
+    // Expose picking functions to window
+    window.mcpStartPicking = mcpStartPicking;
+    window.mcpStopPicking = mcpStopPicking;
 
     const getSidebarWidth = () => {
       const defaultWidth = localStorage.getItem('mcp-sidebar-width') || '300';
@@ -35,6 +165,7 @@ export const injectToolbox = () => {
       `;
 
       const iframe = document.createElement('iframe');
+      iframe.name = 'toolbox-frame';
       iframe.src = 'http://localhost:5174/';
       iframe.style.cssText = `
         width: 100%;
@@ -154,16 +285,6 @@ export const injectToolbox = () => {
       `;
 
       let isExpanded = localStorage.getItem('mcp-sidebar-expanded') !== 'false';
-
-      const toggleSidebar = (expanded: boolean) => {
-        const sidebar = document.querySelector('#mcp-sidebar') as HTMLElement;
-        const width = parseInt(sidebar.style.width);
-        sidebar.style.transform = expanded ? 'translateX(0)' : `translateX(${width}px)`;
-        toggleButton.style.right = expanded ? `${width}px` : '0';
-        toggleButton.textContent = expanded ? '⟩' : '⟨';
-        localStorage.setItem('mcp-sidebar-expanded', expanded.toString());
-      };
-
       if (!isExpanded) {
         toggleSidebar(false);
       }
@@ -178,5 +299,5 @@ export const injectToolbox = () => {
 
     createSidebar();
     createSidebarToggleButton();
-  }
+  });
 }

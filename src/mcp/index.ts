@@ -3,18 +3,12 @@ import { z } from "zod";
 import { chromium, BrowserContext, Browser, Page } from "playwright";
 import { injectToolbox } from "./toolbox.js";
 import { secureEvalAsync } from "./eval.js";
-
-type MessageType = 'DOM' | 'Text' | 'Image';
-
-interface Message {
-  type: MessageType;
-  content: string;
-}
+import { initState, getState, updateState, type Message } from "./store.js";
 
 let browser: Browser;
 let context: BrowserContext;
 let page: Page;
-let messages: Message[] = [];
+
 
 const server = new McpServer({
   name: "playwright",
@@ -43,23 +37,23 @@ server.tool(
     });
     page = await context.newPage();
 
-    // Expose the function to handle picked elements
-    await page.exposeFunction('onElementPicked', (message: string) => {
-      messages.push({ type: 'DOM', content: message });
+    await page.exposeFunction('triggerMcpStartPicking', (pickingType: 'DOM' | 'Image') => {
+      page.evaluate((pickingType: 'DOM' | 'Image') => {
+        window.mcpStartPicking(pickingType);
+      }, pickingType);
     });
 
-    await page.exposeFunction('deleteMessage', (message: string) => {
-      messages = messages.filter(m => m.content !== message);
+    await page.exposeFunction('triggerMcpStopPicking', () => {
+      page.evaluate(() => {
+        window.mcpStopPicking();
+      });
     });
 
-    // Expose the function to clear picked elements
-    await page.exposeFunction('clearPickedElements', () => {
-      messages = [];
-    });
-
-    // Get current messages
-    await page.exposeFunction('getMessages', () => {
-      return messages;
+    await page.exposeFunction('onElementPicked', (message: Message) => {
+      const state = getState();
+      state.messages.push(message);
+      state.pickingType = null;
+      updateState(page, state);
     });
 
     await page.exposeFunction('takeScreenshot', async (selector: string) => {
@@ -67,15 +61,14 @@ server.tool(
         const screenshot = await page.locator(selector).screenshot({
           timeout: 5000
         });
-        const base64Screenshot = screenshot.toString('base64');
-        messages.push({ type: 'Image', content: base64Screenshot });
-        return base64Screenshot;
+        return screenshot.toString('base64');
       } catch (error) {
         console.error('Error taking screenshot', error);
         return null;
       }
     });
 
+    await initState(page);
     await page.addInitScript(injectToolbox);
     await page.goto(url);
 
@@ -194,7 +187,8 @@ server.tool(
   {},
   async () => {
     const url = page.url();
-    const message = messages[0]; // Get first element
+    const state = getState();
+    const message = state.messages[0]; // Get first element
 
     if (!message) {
       return {
@@ -208,9 +202,10 @@ server.tool(
     }
 
     // Remove first message from array
-    messages.shift();
+    state.messages.shift();
+    updateState(page, state);
 
-    const remainingCount = messages.length;
+    const remainingCount = state.messages.length;
     let textContent = `URL: ${url}\n\n`;
     if (remainingCount > 0) {
       textContent += `Remaining ${remainingCount} messages, please fetch those one by one.\n\n`;

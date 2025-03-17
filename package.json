@@ -3,15 +3,15 @@
   "version": "0.0.4",
   "description": "Playwright integration for ModelContext",
   "type": "module",
-  "main": "dist/mcp.js",
+  "main": "dist/server.js",
   "bin": {
-    "playwright-mcp": "./dist/mcp.js"
+    "playwright-mcp": "./dist/server.js"
   },
   "scripts": {
     "dev": "concurrently \"npm run dev:ui\" \"npm run dev:lib\"",
     "dev:ui": "vite --config vite.config.js",
-    "dev:lib": "tsup src/mcp.ts --watch --tsconfig tsconfig.lib.json --format cjs,esm --dts --clean",
-    "build": "tsc -b && vite build",
+    "dev:lib": "tsup --watch",
+    "build": "NODE_ENV=production tsup && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
