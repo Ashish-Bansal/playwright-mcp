@@ -81,13 +81,26 @@ server.tool(
         return;
       }
 
+      if (state.messages.length > 0) {
+        const lastMessage = state.messages[state.messages.length - 1];
+        if (lastMessage.type === 'Interaction') {
+          const lastInteraction = JSON.parse(lastMessage.content);
+          if (lastInteraction.type === "input" && lastInteraction.elementUUID === event.elementUUID) {
+            lastInteraction.typedText = event.typedText;
+            state.messages[state.messages.length - 1] = {
+              type: 'Interaction',
+              content: JSON.stringify(lastInteraction),
+            };
+            updateState(page, state);
+            return;
+          }
+        }
+      }
+
+      delete event.dom
       state.messages.push({
         type: 'Interaction',
-        content: JSON.stringify({
-          type: event.type,
-          eventId: event.eventId,
-          timestamp: event.timestamp,
-        }),
+        content: JSON.stringify(event),
       });
       updateState(page, state);
     });
