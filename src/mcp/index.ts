@@ -221,53 +221,74 @@ Example response:
 
 server.tool(
   "get-context",
-  "Get the current URL and user defined context which would be used to write the testcase",
+  "Get the website context which would be used to write the testcase",
   {},
   async () => {
-    const url = page.url();
     const state = getState();
-    const message = state.messages[0]; // Get first element
 
-    if (!message) {
+    if (state.messages.length === 0) {
       return {
         content: [
           {
             type: "text",
-            text: `URL: ${url}\n\nNo messages available`
+            text: `No messages available`
           }
         ]
       };
     }
 
-    // Remove first message from array
-    state.messages.shift();
+    const content: any = [];
+
+    let totalLength = 0;
+    let messagesProcessed = 0;
+
+    while (messagesProcessed < state.messages.length && totalLength < 20000) {
+      const message = state.messages[messagesProcessed];
+      let currentContent = message.content
+      if (message.type === 'DOM') {
+        currentContent = `DOM: ${message.content}\n\n`;
+      } else if (message.type === 'Text') {
+        currentContent = `Text: ${message.content}\n\n`;
+      } else if (message.type === 'Interaction') {
+        const interaction = JSON.parse(message.content);
+        delete interaction.eventId;
+        delete interaction.dom;
+        delete interaction.elementUUID;
+        if (interaction.selectors) {
+          interaction.selectors = interaction.selectors.slice(0, 10);
+        }
+
+        currentContent = `Interaction: ${JSON.stringify(interaction)}\n\n`;
+      } else if (message.type === 'Image') {
+        currentContent = message.content;
+      }
+
+      totalLength += currentContent.length;
+
+      const item: any = {}
+      const isImage = message.type === 'Image';
+      if (isImage) {
+        item.type = "image";
+        item.data = message.content;
+        item.mimeType = "image/png";
+      } else {
+        item.type = "text";
+        item.text = currentContent;
+      }
+      content.push(item);
+      messagesProcessed++;
+    }
+
+    // Remove processed messages
+    state.messages.splice(0, messagesProcessed);
     updateState(page, state);
 
     const remainingCount = state.messages.length;
-    let textContent = `URL: ${url}\n\n`;
     if (remainingCount > 0) {
-      textContent += `Remaining ${remainingCount} messages, please fetch those one by one.\n\n`;
-    }
-
-    if (message.type === 'DOM') {
-      textContent += `DOM: ${message.content}`;
-    } else if (message.type === 'Text') {
-      textContent += `Text: ${message.content}`;
-    }
-
-    const content: any = [
-      {
-        type: "text",
-        text: textContent
-      },
-    ]
-
-    if (message.type === 'Image') {
       content.push({
-        type: "image",
-        data: message.content,
-        mimeType: "image/png"
-      })
+        type: "text",
+        text: `Remaining ${remainingCount} messages, please fetch those in next requests.\n`
+      });
     }
 
     return {

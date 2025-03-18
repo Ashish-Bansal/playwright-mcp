@@ -43,6 +43,8 @@ export const preprocessBrowserEvent = (event: BrowserEvent) => {
     const element = dom.querySelector(`[uuid="${event.elementUUID}"]`)
     event.elementName = element ? getElementName(element) : "unknown"
     event.elementType = element ? getElementType(element) : "unknown"
+    // for efficiency, we don't need to preserve it for now
+    event.dom = ''
   }
 }
 
