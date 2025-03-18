@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Play } from 'lucide-react';
 import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
+import { highlight, languages } from 'prismjs';
 import 'prismjs/components/prism-clike';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/themes/prism.css';
@@ -38,7 +38,7 @@ const Execute: React.FC = () => {
         <Editor
           value={state.code}
           onValueChange={code => updateState({ ...state, code })}
-          highlight={code => highlight(code, languages.js)}
+          highlight={code => highlight(code, languages.js, 'javascript')}
           padding={10}
           className="font-mono mb-4 min-h-[200px] border rounded-md"
           style={{
