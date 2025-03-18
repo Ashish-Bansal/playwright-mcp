@@ -50,10 +50,14 @@ async function syncToReact(page: Page, state: typeof globalState) {
     return;
   }
 
-  await toolboxFrame.evaluate((state) => {
-    window.globalState = state;
-    window.notifyStateSubscribers();
-  }, state);
+  try {
+    await toolboxFrame.evaluate((state) => {
+      window.globalState = state;
+      window.notifyStateSubscribers();
+    }, state);
+  } catch (error) {
+    console.error('Error syncing to React:', error);
+  }
 }
 
 const getState = () => {
