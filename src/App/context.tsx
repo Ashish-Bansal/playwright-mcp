@@ -208,7 +208,6 @@ const Context: React.FC = () => {
     }
   });
 
-  const activePickingType = state.pickingType;
   const recordingInteractions = state.recordingInteractions;
 
   return (
@@ -229,7 +228,7 @@ const Context: React.FC = () => {
         </Button>
       </div>
       <ScrollArea className="flex-1 max-h-[calc(100vh-194px)] overflow-y-auto">
-        {messageGroups.length > 0 ? (
+        {(messageGroups.length > 0 || recordingInteractions) ? (
           <div className="flex flex-col gap-8 p-4">
             {messageGroups.map((messageGroup: Message[], index: number) => (
               <div key={index} className="flex flex-col gap-4">
