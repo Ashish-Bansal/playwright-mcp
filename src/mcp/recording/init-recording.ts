@@ -14,6 +14,10 @@ export const initRecording = async (
   onBrowserEvent: (event: BaseBrowserEvent) => void,
 ) => {
   page.addInitScript(() => {
+    if (window.self !== window.top) {
+      return;
+    }
+
     function getDom(): string {
       const snapshot = document.documentElement.cloneNode(true) as HTMLElement
 
