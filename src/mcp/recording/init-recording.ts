@@ -246,6 +246,14 @@ export const initRecording = async (
         keys.push(event.key)
       }
 
+      if (keys.includes('Meta') && keys.includes('Tab')) {
+        return
+      }
+
+      if (keys.length === 1 && keys[0] === 'Meta') {
+        return
+      }
+
       if (keys.length > 0) {
         window.recordKeyPress(dom, keys)
       }
