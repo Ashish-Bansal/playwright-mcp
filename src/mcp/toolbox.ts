@@ -5,7 +5,7 @@ interface PickingState {
 }
 
 export const injectToolbox = () => {
-  window.addEventListener('load', function() {
+  window.addEventListener('DOMContentLoaded', function() {
     const inIframe = window.self !== window.top;
     if (inIframe) {
       return;
