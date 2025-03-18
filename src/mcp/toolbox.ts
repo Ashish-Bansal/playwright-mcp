@@ -221,7 +221,7 @@ export const injectToolbox = () => {
 
         const deltaX = lastX - e.clientX;
         const newWidth = Math.min(
-          Math.max(100, sidebar.offsetWidth + deltaX),
+          Math.max(400, sidebar.offsetWidth + deltaX),
           window.innerWidth * 0.8
         );
 
