@@ -252,6 +252,10 @@ export const initRecording = async (
     }
 
     function handleKeyUp(event: KeyboardEvent): void {
+      if (['Enter', 'Escape'].includes(event.key)) {
+        return;
+      }
+
       if (
         document.activeElement?.tagName.toLowerCase() !== 'input' &&
         document.activeElement?.tagName.toLowerCase() !== 'textarea'
