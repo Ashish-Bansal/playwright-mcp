@@ -1,11 +1,11 @@
 {
   "name": "playwright-mcp",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "Playwright integration for ModelContext",
   "type": "module",
   "main": "dist/server.js",
   "bin": {
-    "playwright-mcp": "./dist/server.js"
+    "playwright-mcp": "dist/server.js"
   },
   "scripts": {
     "dev": "concurrently \"npm run dev:ui\" \"npm run dev:lib\"",

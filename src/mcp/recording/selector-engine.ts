@@ -324,7 +324,7 @@ const getSelectors = (document: Document, elementUUID: string): string[] => {
 
   const validSelectors = selectors.filter(validateSelector)
   logger.info('Valid selectors', validSelectors)
-  return validSelectors.slice(0, 1000)
+  return validSelectors.slice(0, 100)
 }
 
 export { getSelectors }

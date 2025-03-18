@@ -313,7 +313,7 @@ server.tool(
 
 server.tool(
   "validate-selectors",
-  "Validate multiple selectors. Returns validation results for each selector",
+  "Validate multiple selectors. Returns validation results for each selector.  (Prefer using execute-code instead)",
   {
     selectors: z.array(z.string()),
   },

@@ -81,10 +81,14 @@ Note: While playwright-mcp works with Claude and other AI assistants, it perform
     - [[more]]
     - [[more]]
 
+    ## Reference
+    - Use @x, @y files if you want to take reference on how I write POM code
+
     ## Steps
-    - First fetch the context from `get-context` tool, until it returns no elements remaining.
-    - Write required code in the POM format
-    - Validate all the selectors using `validate-selectors` tool.
+    - First fetch the context from `get-context` tool, until it returns no elements remaining
+    - Based on context and user functionality, write code in POM format, encapsulating high level functionality into reusable functions
+    - Try executing code using `execute-code` tool. You could be on any page, so make sure to navigate to the correct page
+    - Write spec file using those reusable functions, covering multiple scenarios
 ```
 
 3. Press Enter and wait for the code generation to complete
