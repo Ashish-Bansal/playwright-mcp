@@ -5,6 +5,7 @@ import { injectToolbox } from "./toolbox.js";
 import { secureEvalAsync } from "./eval.js";
 import { initState, getState, updateState, type Message } from "./state.js";
 import { initRecording } from "./recording";
+import { preprocessBrowserEvent } from "./recording/utils.js";
 
 let browser: Browser;
 let context: BrowserContext;
@@ -103,9 +104,11 @@ server.tool(
     await initState(page);
     await initRecording(page, (event: any) => {
       const state = getState();
-      if (!state.recordingInteractions) {
+      if (!state.recordingInteractions || state.pickingType) {
         return;
       }
+
+      preprocessBrowserEvent(event)
 
       if (state.messages.length > 0) {
         const lastMessage = state.messages[state.messages.length - 1];
@@ -123,7 +126,6 @@ server.tool(
         }
       }
 
-      delete event.dom
       state.messages.push({
         type: 'Interaction',
         content: JSON.stringify(event),
