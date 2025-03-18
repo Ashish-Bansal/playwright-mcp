@@ -65,6 +65,20 @@ server.tool(
     });
     page = await context.newPage();
 
+    await context.route('**/*', async route => {
+      const response = await route.fetch();
+      const headers = response.headers();
+
+      // Add or modify the CSP header
+      headers['Content-Security-Policy'] = headers['Content-Security-Policy']?.replace(
+        'frame-src',
+        "frame-src http://localhost:5174/"
+      ) || "frame-src 'self' http://localhost:5174/";
+
+      await route.fulfill({ response, headers });
+    });
+
+
     await page.exposeFunction('triggerMcpStartPicking', (pickingType: 'DOM' | 'Image') => {
       page.evaluate((pickingType: 'DOM' | 'Image') => {
         window.mcpStartPicking(pickingType);
