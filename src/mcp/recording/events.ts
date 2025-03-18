@@ -15,6 +15,8 @@ export enum BrowserEventType {
     type: BrowserEventType.Click
     elementUUID: string
     selectors: string[]
+    elementName?: string
+    elementType?: string
   }
 
   export interface InputBrowserEvent extends BaseBrowserEvent {
@@ -22,6 +24,8 @@ export enum BrowserEventType {
     elementUUID: string
     typedText: string
     selectors: string[]
+    elementName?: string
+    elementType?: string
   }
 
   export interface KeyPressBrowserEvent extends BaseBrowserEvent {
