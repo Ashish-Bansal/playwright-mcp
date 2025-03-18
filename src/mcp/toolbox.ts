@@ -108,7 +108,8 @@ export const injectToolbox = () => {
           const html = element.outerHTML;
           message = {
             type: 'DOM',
-            content: html
+            content: html,
+            windowUrl: window.location.href
           };
         } else {
           const previewOverlay = document.querySelector('#mcp-highlight-overlay-preview') as HTMLElement;
@@ -124,7 +125,8 @@ export const injectToolbox = () => {
           }
           message = {
             type: 'Image',
-            content: screenshot
+            content: screenshot,
+            windowUrl: window.location.href
           };
         }
 

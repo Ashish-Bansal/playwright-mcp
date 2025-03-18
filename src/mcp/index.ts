@@ -119,6 +119,7 @@ server.tool(
             state.messages[state.messages.length - 1] = {
               type: 'Interaction',
               content: JSON.stringify(lastInteraction),
+              windowUrl: event.windowUrl,
             };
             updateState(page, state);
             return;
@@ -129,6 +130,7 @@ server.tool(
       state.messages.push({
         type: 'Interaction',
         content: JSON.stringify(event),
+        windowUrl: event.windowUrl,
       });
       updateState(page, state);
     });

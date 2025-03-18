@@ -1,11 +1,5 @@
 import type { Page } from "playwright";
-type MessageType = 'DOM' | 'Text' | 'Image' | 'Interaction';
 type PickingType = 'DOM' | 'Image';
-
-interface Message {
-  type: MessageType;
-  content: string;
-}
 
 let globalState = {
   messages: [] as Message[],
@@ -56,7 +50,7 @@ async function syncToReact(page: Page, state: typeof globalState) {
       window.notifyStateSubscribers();
     }, state);
   } catch (error) {
-    console.error('Error syncing to React:', error);
+    console.info('Error syncing to React:', error);
   }
 }
 

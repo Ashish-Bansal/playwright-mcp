@@ -1,7 +1,8 @@
 declare global {
   interface Message {
-    type: 'DOM' | 'Image';
+    type: 'DOM' | 'Image' | 'Text' | 'Interaction';
     content: string;
+    windowUrl: string;
   }
 
   interface Window {
