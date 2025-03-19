@@ -2,7 +2,7 @@
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { server } from "./mcp/index";
-import { webServer } from "./web-server";
+import { webServer, isPortInUse } from "./web-server";
 
 async function main() {
     const transport = new StdioServerTransport();
@@ -10,9 +10,14 @@ async function main() {
     console.error("MCP Server started");
 
     if (process.env.NODE_ENV !== 'development') {
-      webServer.listen(5174, () => {
-        console.error("Web server started");
-      });
+      const portInUse = await isPortInUse(5174);
+      if (!portInUse) {
+        webServer.listen(5174, () => {
+          console.error("Web server started");
+        });
+      } else {
+        console.error("Port 5174 is in use, skipping web server");
+      }
     }
 }
 

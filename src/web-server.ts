@@ -3,15 +3,28 @@ import fs from 'fs';
 import path from 'path';
 import url, { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import net from 'net';
 
 // Get the current file's path
 const __filename = fileURLToPath(import.meta.url);
 // Get the current directory
 const __dirname = dirname(__filename);
 
-
 // Define the directory from which to serve files
 const SERVE_DIR = path.join(__dirname, 'ui'); // Change 'public' to your desired directory name
+
+// Helper function to check if port is in use
+async function isPortInUse(port: number): Promise<boolean> {
+  return new Promise((resolve) => {
+    const tester = net.createServer()
+      .once('error', () => resolve(true))
+      .once('listening', () => {
+        tester.once('close', () => resolve(false));
+        tester.close();
+      })
+      .listen(port);
+  });
+}
 
 // Create HTTP server
 const server = http.createServer((req, res) => {
@@ -111,4 +124,4 @@ function serveFile(filePath: string, res: http.ServerResponse): void {
   });
 }
 
-export { server as webServer };
+export { server as webServer, isPortInUse };
