@@ -285,6 +285,7 @@ export const injectToolbox = () => {
         z-index: 999999;
         transition: right 0.3s ease;
       `;
+      document.body.appendChild(toggleButton);
 
       let isExpanded = localStorage.getItem('mcp-sidebar-expanded') !== 'false';
       if (!isExpanded) {
@@ -295,8 +296,6 @@ export const injectToolbox = () => {
         isExpanded = !isExpanded;
         toggleSidebar(isExpanded);
       });
-
-      document.body.appendChild(toggleButton);
     }
 
     createSidebar();
