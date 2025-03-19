@@ -200,11 +200,12 @@ export const initRecording = async (
         return;
       }
 
-      e.stopPropagation();
-      recordedEvents.set(e, true);
-
       const target = e.target as Element;
       if (!target) return;
+      if (target.getAttribute('data-skip-recording')) return;
+
+      e.stopPropagation();
+      recordedEvents.set(e, true);
 
       addAttributesToNode(document.documentElement);
       const elementUUID = target.getAttribute('uuid');

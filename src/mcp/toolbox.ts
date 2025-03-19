@@ -268,6 +268,7 @@ export const injectToolbox = () => {
       const toggleButton = document.createElement('button');
       toggleButton.id = 'mcp-sidebar-toggle-button';
       toggleButton.textContent = '⟩';
+      toggleButton.setAttribute('data-skip-recording', 'true');
       const sidebarWidth = getSidebarWidth();
       toggleButton.style.cssText = `
         position: fixed;
