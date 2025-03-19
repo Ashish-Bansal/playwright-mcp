@@ -65,15 +65,27 @@ server.tool(
     });
     page = await context.newPage();
 
-    await context.route('**/*', async route => {
+    await context.route('**/*.html', async route => {
       const response = await route.fetch();
       const headers = response.headers();
 
-      // Add or modify the CSP header
-      headers['Content-Security-Policy'] = headers['Content-Security-Policy']?.replace(
-        'frame-src',
-        "frame-src http://localhost:5174/"
-      ) || "frame-src 'self' http://localhost:5174/";
+      const contentType = headers['content-type'] || '';
+      if (contentType.includes('text/html')) {
+        const currentCSP = headers['Content-Security-Policy'] || '';
+
+        if (currentCSP) {
+          if (currentCSP.includes('frame-src')) {
+            headers['Content-Security-Policy'] = currentCSP.replace(
+              /frame-src([^;]*)(;|$)/,
+              "frame-src 'self' http://localhost:5174/$2"
+            );
+          } else {
+            headers['Content-Security-Policy'] = currentCSP + " frame-src 'self' http://localhost:5174/;";
+          }
+        } else {
+          headers['Content-Security-Policy'] = "frame-src 'self' http://localhost:5174/;";
+        }
+      }
 
       await route.fulfill({ response, headers });
     });
