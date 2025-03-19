@@ -185,7 +185,7 @@ const _getParentPathSelectors = (dom: Document, element: Element): string[] => {
     current = current.parentElement
   }
 
-  logger.info(
+  logger.debug(
     'Path',
     path.map((node) => node.tagName),
   )
@@ -216,7 +216,7 @@ const _getParentPathSelectors = (dom: Document, element: Element): string[] => {
     ...targetSelectors,
     ...targetSelectorsWithNthChild,
   ]
-  logger.info('Target Selectors', allTargetSelectors)
+  logger.debug('Target Selectors', allTargetSelectors)
 
   for (const targetSelector of allTargetSelectors) {
     const matches = getMatchCount(dom, targetSelector)
@@ -256,7 +256,7 @@ const _getParentPathSelectors = (dom: Document, element: Element): string[] => {
           )
         }
 
-        logger.info('Possible Combined Selectors', possibleCombinedSelectors)
+        logger.debug('Possible Combined Selectors', possibleCombinedSelectors)
 
         for (const combinedSelector of possibleCombinedSelectors) {
           const newMatches = getMatchCount(dom, combinedSelector)
@@ -317,13 +317,13 @@ const getSelectors = (document: Document, elementUUID: string): string[] => {
       logger.debug('Element', element.outerHTML)
       return selectedElements.length === 1 && selectedElements[0] === element
     } catch (e) {
-      logger.warn('Failed to validate selector', selector, e)
+      logger.debug('Failed to validate selector', selector, e)
       return false
     }
   }
 
   const validSelectors = selectors.filter(validateSelector)
-  logger.info('Valid selectors', validSelectors)
+  logger.debug('Valid selectors', validSelectors)
   return validSelectors.slice(0, 100)
 }
 

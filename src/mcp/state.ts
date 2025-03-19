@@ -50,7 +50,7 @@ async function syncToReact(page: Page, state: typeof globalState) {
       window.notifyStateSubscribers();
     }, state);
   } catch (error) {
-    console.info('Error syncing to React:', error);
+    console.debug('Error syncing to React:', error);
   }
 }
 
