@@ -157,15 +157,38 @@ const MessageComponent: React.FC<MessageProps> = ({ message, onDelete }) => {
 const Context: React.FC = () => {
   const [state, updateState] = useGlobalState();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const prevMessagesLength = useRef(state.messages.length);
+  const isFirstRender = useRef(true);
+
+  const scrollToBottom = () => {
+    if (messagesContainerRef.current) {
+      const scrollArea = messagesContainerRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollArea) {
+        scrollArea.scrollTo({
+          top: scrollArea.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
 
   useEffect(() => {
-    if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTo({
-        top: messagesContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+    if (state.messages.length > prevMessagesLength.current) {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 200);
     }
-  }, [state.messages]);
+    prevMessagesLength.current = state.messages.length;
+  }, [state.messages.length]);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 500);
+      isFirstRender.current = false;
+    }
+  }, []);
 
   const handleDelete = (content: string) => {
     updateState({
@@ -227,7 +250,7 @@ const Context: React.FC = () => {
           </div>
         </Button>
       </div>
-      <ScrollArea className="flex-1 max-h-[calc(100vh-194px)] overflow-y-auto">
+      <ScrollArea ref={messagesContainerRef} className="flex-1 max-h-[calc(100vh-194px)] overflow-y-auto">
         {(messageGroups.length > 0 || recordingInteractions) ? (
           <div className="flex flex-col gap-8 p-4">
             {messageGroups.map((messageGroup: Message[], index: number) => (
