@@ -50,7 +50,7 @@ export const preprocessBrowserEvent = (event: BrowserEvent) => {
 
 const getElementName = (element: Element) => {
   let text = ''
-  const priorityAttrs = ['aria-label', 'title', 'placeholder', 'name']
+  const priorityAttrs = ['aria-label', 'title', 'placeholder', 'name', 'alt']
   for (const attr of priorityAttrs) {
     if (!text) {
       text = element?.getAttribute(attr) || ''
