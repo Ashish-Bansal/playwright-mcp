@@ -1,0 +1,111 @@
+---
+id: glossary
+sidebar_label: Glossary
+title:  playwright-mcp Feature Glossary
+sidebar_position: 3
+---
+
+
+`playwright-mcp` is a Model Context Protocol (MCP) server that integrates Playwright's browser automation capabilities with AI assistants, facilitating seamless interaction with web pages. This glossary details each feature, providing insights into their functionalities and usage.
+
+## **Browser Toolbox**
+
+### **Record Interactions**
+
+**Description:** Records user interactions such as clicks, inputs, and navigations within the browser. These recorded interactions automatically generate selectors and can be passed as context to MCP clients like Claude or Cursor to assist in writing test cases.
+
+**Usage:**
+
+- Click on “Start recording”.
+- Perform the desired actions on the web page (e.g., clicking buttons, entering text).
+- The tool logs each interaction, capturing the corresponding selectors.
+
+### Select DOM element
+
+**Description:** Allows users to select and capture HTML elements directly from the web page. This feature is instrumental in picking up the right components ensuring that automated interactions target the correct elements.
+
+**Usage:**
+
+- Click on "Pick DOM" tool.
+- Click on the desired element on the web page.
+- The tool captures the HTML structure of the selected element, which can be utilized in test scripts.
+
+### Take Screenshot
+
+**Description:** Enables users to capture screenshots of specific elements on a web page. This is particularly useful for visual testing, documentation, or when providing context to AI assistants.
+
+**Usage:**
+
+- Click on “Take screenshot” button.
+- Click on the element you wish to capture.
+- A screenshot of the selected element is taken and saved.
+
+---
+
+## **MCP Commands**
+
+### **1. `execute-code`**
+
+**Purpose:** Execute custom Playwright JS code on the playwright browser.
+
+**Input:**
+
+```json
+{
+  "script": "/* Your JavaScript code here */"
+}
+```
+
+---
+
+### **2. `get-context`**
+
+**Purpose:** Get the website context, which would be used to write the test case.
+
+**Input:** Doesn’t require any input. The browser should be open for this to work.
+
+---
+
+### **3. `get-full-dom`**
+
+**Purpose:** Get the full DOM of the current page. (Prefer using `get-context` instead.)
+
+**Input:** Doesn’t require any input. The browser should be open for this to work.
+
+---
+
+### **4. `get-screenshot`**
+
+**Purpose:** Get a screenshot of the current page.
+
+**Input:** Doesn’t require any input. The browser should be open for this to work.
+
+---
+
+### **5. `init-browser`**
+
+**Purpose:** Initialize a browser with a URL.
+
+**Input:**
+
+```json
+{
+  "url": "https://example.com"
+}
+
+```
+
+---
+
+### **6. `validate-selectors`**
+
+**Purpose:** Validate selectors. Returns validation results for each selector after checking it on the browser. (Prefer using `execute-code` instead.)
+
+**Input:**
+
+```json
+{
+  "selectors": ["#button", ".input-field", "div.container"]
+}
+
+```
