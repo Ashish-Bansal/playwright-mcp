@@ -53,6 +53,10 @@ const config: Config = {
       } satisfies Preset.Options,
     ],
   ],
+  plugins: [
+    '@docusaurus/plugin-sitemap',
+  ],
+  
   // plugins: [
   //   [
   //     '@docusaurus/plugin-client-redirects',
@@ -68,6 +72,13 @@ const config: Config = {
   // ],
   
   themeConfig: {
+    metadata: [
+      { name: 'keywords', content: 'docs, playwright-mcp, tutorial, cursor, claude' },
+      { name: 'robots', content: 'index,follow' },
+      { property: 'og:type', content: 'website' },
+      { property: 'og:image', content: 'https://ashish-bansal.github.io/playwright-mcp/img/playwright-mcp-social-card.png' },
+    ],
+
     // Replace with your project's social card
     image: 'img/playwright-mcp-social-card.png',
     navbar: {
