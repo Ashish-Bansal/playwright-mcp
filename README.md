@@ -1,6 +1,6 @@
 # How to Use playwright-mcp?
 
-[![npm version](https://img.shields.io/npm/v/playwright-mcp)](https://www.npmjs.com/package/playwright-mcp)
+[![npm version](https://img.shields.io/npm/v/playwright-mcp)](https://www.npmjs.com/package/playwright-mcp) [![Docs](https://img.shields.io/badge/docs-playwright--mcp-blue)](https://ashish-bansal.github.io/playwright-mcp/)
 
 ## Introduction
 
@@ -100,3 +100,7 @@ Note: While playwright-mcp works with Claude and other AI assistants, it perform
 - **Select Relevant Elements**: Only pick elements that are directly related to your test case
 - **Iterative Refinement**: Don't expect perfect tests on the first try; refine them iteratively
 
+
+
+For more detailed information and advanced usage, check out
+[📖 **View Documentation**](https://ashish-bansal.github.io/playwright-mcp/)
