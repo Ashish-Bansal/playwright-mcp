@@ -7,10 +7,10 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Playwright MCP - Docs',
   tagline: 'Dinosaurs are cool',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/playwright-mcp-favicon.png',
 
   // Set the production url of your site here
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://ashish-bansal.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/playwright-mcp/',
