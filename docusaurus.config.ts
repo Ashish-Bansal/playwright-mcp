@@ -50,26 +50,23 @@ const config: Config = {
         theme: {
           customCss: './src/css/custom.css',
         },
+        
+        sitemap: {
+          lastmod: 'date',
+          changefreq: 'weekly',
+          priority: 0.5,
+          ignorePatterns: ['/tags/**'],
+          filename: 'sitemap.xml',
+          createSitemapItems: async (params) => {
+            const {defaultCreateSitemapItems, ...rest} = params;
+            const items = await defaultCreateSitemapItems(rest);
+            return items.filter((item) => !item.url.includes('/page/'));
+          },
+        },
       } satisfies Preset.Options,
     ],
   ],
-  plugins: [
-    '@docusaurus/plugin-sitemap',
-  ],
   
-  // plugins: [
-  //   [
-  //     '@docusaurus/plugin-client-redirects',
-  //     {
-  //       redirects: [
-  //         {
-  //           to: '/docs/introduction', // Target
-  //           from: '/',   // Homepage
-  //         },
-  //       ],
-  //     },
-  //   ],
-  // ],
   
   themeConfig: {
     metadata: [
@@ -78,7 +75,7 @@ const config: Config = {
       { property: 'og:type', content: 'website' },
       { property: 'og:image', content: 'https://ashish-bansal.github.io/playwright-mcp/img/playwright-mcp-social-card.png' },
     ],
-
+    
     // Replace with your project's social card
     image: 'img/playwright-mcp-social-card.png',
     navbar: {
