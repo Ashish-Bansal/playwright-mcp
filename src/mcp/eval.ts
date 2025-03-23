@@ -35,32 +35,26 @@ export const secureEvalAsync = async (page: Page, code: string, context = {}) =>
       log: (...args: any[]) => {
         const msg = args.map(arg => String(arg)).join(' ');
         logs.push(`[log] ${msg}`);
-        console.log('[Sandbox]', ...args);
       },
       error: (...args: any[]) => {
         const msg = args.map(arg => String(arg)).join(' ');
         errors.push(`[error] ${msg}`);
-        console.error('[Sandbox]', ...args);
       },
       warn: (...args: any[]) => {
         const msg = args.map(arg => String(arg)).join(' ');
         logs.push(`[warn] ${msg}`);
-        console.warn('[Sandbox]', ...args);
       },
       info: (...args: any[]) => {
         const msg = args.map(arg => String(arg)).join(' ');
         logs.push(`[info] ${msg}`);
-        console.info('[Sandbox]', ...args);
       },
       debug: (...args: any[]) => {
         const msg = args.map(arg => String(arg)).join(' ');
         logs.push(`[debug] ${msg}`);
-        console.debug('[Sandbox]', ...args);
       },
       trace: (...args: any[]) => {
         const msg = args.map(arg => String(arg)).join(' ');
         logs.push(`[trace] ${msg}`);
-        console.trace('[Sandbox]', ...args);
       }
     },
 
