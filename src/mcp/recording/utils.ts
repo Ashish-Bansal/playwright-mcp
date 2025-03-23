@@ -1,12 +1,31 @@
 import { BrowserEvent, BrowserEventType } from "./events.js";
 import { getSelectors } from "./selector-engine.js";
-import { JSDOM } from "jsdom";
+import { Window } from "happy-dom";
 
 const parseDom = (html: string) => {
-  const dom = new JSDOM(html, {
-    runScripts: 'outside-only'
-  })
-  return dom.window.document
+  const window = new Window({
+    settings: {
+      disableJavaScriptEvaluation: true
+    }
+  });
+  window.document.write(html);
+  return window.document as unknown as Document;
+}
+
+export const preprocessBrowserEvent = (event: BrowserEvent) => {
+  if (
+    event.type === BrowserEventType.Click ||
+    event.type === BrowserEventType.Input
+  ) {
+    const dom = parseDom(event.dom)
+    event.selectors = getSelectors(dom, event.elementUUID);
+
+    const element = dom.querySelector(`[uuid="${event.elementUUID}"]`)
+    event.elementName = element ? getElementName(element) : "unknown"
+    event.elementType = element ? getElementType(element) : "unknown"
+    // for efficiency, we don't need to preserve it for now
+    event.dom = ''
+  }
 }
 
 const extractText = (element: Element): string => {
@@ -29,23 +48,6 @@ const extractTextsFromSiblings = (element: Element): string[] => {
     .map((sibling) => extractText(sibling as unknown as Element))
     .map((text) => text.trim())
     .filter((text) => text.length > 0)
-}
-
-
-export const preprocessBrowserEvent = (event: BrowserEvent) => {
-  if (
-    event.type === BrowserEventType.Click ||
-    event.type === BrowserEventType.Input
-  ) {
-    event.selectors = getSelectors(parseDom(event.dom), event.elementUUID)
-
-    const dom = parseDom(event.dom)
-    const element = dom.querySelector(`[uuid="${event.elementUUID}"]`)
-    event.elementName = element ? getElementName(element) : "unknown"
-    event.elementType = element ? getElementType(element) : "unknown"
-    // for efficiency, we don't need to preserve it for now
-    event.dom = ''
-  }
 }
 
 const getElementName = (element: Element) => {

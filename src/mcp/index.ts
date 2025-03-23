@@ -5,7 +5,7 @@ import { injectToolbox } from "./toolbox.js";
 import { secureEvalAsync } from "./eval.js";
 import { initState, getState, updateState, type Message } from "./state.js";
 import { initRecording } from "./recording";
-import { preprocessBrowserEvent } from "./recording/utils.js";
+import { handleBrowserEvent } from "./handle-browser-event.js";
 
 let browser: Browser;
 let context: BrowserContext;
@@ -104,38 +104,7 @@ server.tool(
     });
 
     await initState(page);
-    await initRecording(page, (event: any) => {
-      const state = getState();
-      if (!state.recordingInteractions || state.pickingType) {
-        return;
-      }
-
-      preprocessBrowserEvent(event)
-
-      if (state.messages.length > 0) {
-        const lastMessage = state.messages[state.messages.length - 1];
-        if (lastMessage.type === 'Interaction') {
-          const lastInteraction = JSON.parse(lastMessage.content);
-          if (lastInteraction.type === "input" && lastInteraction.elementUUID === event.elementUUID) {
-            lastInteraction.typedText = event.typedText;
-            state.messages[state.messages.length - 1] = {
-              type: 'Interaction',
-              content: JSON.stringify(lastInteraction),
-              windowUrl: event.windowUrl,
-            };
-            updateState(page, state);
-            return;
-          }
-        }
-      }
-
-      state.messages.push({
-        type: 'Interaction',
-        content: JSON.stringify(event),
-        windowUrl: event.windowUrl,
-      });
-      updateState(page, state);
-    });
+    await initRecording(page, handleBrowserEvent(page));
 
     await page.addInitScript(injectToolbox);
     await page.goto(url);
