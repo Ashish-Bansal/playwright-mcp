@@ -122,7 +122,7 @@ server.tool(
 
 server.tool(
   "get-full-dom",
-  "Get the full DOM of the current page. (Prefer using get-context instead)",
+  "Get the full DOM of the current page. (Deprecated, use get-context instead)",
   {},
   async () => {
     const html = await page.content();
@@ -270,7 +270,7 @@ server.tool(
 
 server.tool(
   "validate-selectors",
-  "Validate multiple selectors. Returns validation results for each selector.  (Prefer using execute-code instead)",
+  "Validate multiple selectors. Returns validation results for each selector.  (Deprecated, use execute-code instead)",
   {
     selectors: z.array(z.string()),
   },
