@@ -217,9 +217,9 @@ server.tool(
       const message = state.messages[messagesProcessed];
       let currentContent = message.content
       if (message.type === 'DOM') {
-        currentContent = `DOM: ${message.content}\n\n`;
+        currentContent = `DOM: ${message.content}`;
       } else if (message.type === 'Text') {
-        currentContent = `Text: ${message.content}\n\n`;
+        currentContent = `Text: ${message.content}`;
       } else if (message.type === 'Interaction') {
         const interaction = JSON.parse(message.content);
         delete interaction.eventId;
@@ -229,7 +229,7 @@ server.tool(
           interaction.selectors = interaction.selectors.slice(0, 10);
         }
 
-        currentContent = `Interaction: ${JSON.stringify(interaction)}\n\n`;
+        currentContent = JSON.stringify(interaction);
       } else if (message.type === 'Image') {
         currentContent = message.content;
       }
