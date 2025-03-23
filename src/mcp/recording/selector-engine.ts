@@ -287,14 +287,14 @@ const _getParentPathSelectors = (dom: Document, element: Element): string[] => {
   return result
 }
 
-const _getCssSelectors = (document: Document, element: Element) => {
-  const selectors: string[] = []
-  selectors.push(..._getParentPathSelectors(document, element))
-  selectors.push(..._getChildRelationshipSelectors(document, element))
-  selectors.push(..._getSiblingRelationshipSelectors(document, element))
-  // TODO: Add scoring mechanism
-  // return selectors.sort((a, b) => a.length - b.length);
-  return selectors
+
+const validateSelector = (document: Document, element: Element, selector: string) => {
+  try {
+    const selectedElements = document.querySelectorAll(selector)
+    return selectedElements.length === 1 && selectedElements[0] === element
+  } catch (e) {
+    return false
+  }
 }
 
 const getSelectors = (document: Document, elementUUID: string): string[] => {
@@ -302,29 +302,27 @@ const getSelectors = (document: Document, elementUUID: string): string[] => {
   if (!element) {
     throw new Error(`Element with UUID ${elementUUID} not found`)
   }
-  const selectors = _getCssSelectors(document, element)
-  logger.debug('All generated selectors:', selectors)
 
-  const validateSelector = (selector: string) => {
-    try {
-      logger.debug('Validating selector', selector)
-      const selectedElements = document.querySelectorAll(selector)
-      logger.debug('Selector', selector)
-      logger.debug(
-        'Selected elements',
-        Array.from(selectedElements).map((el) => (el as Element).outerHTML),
-      )
-      logger.debug('Element', element.outerHTML)
-      return selectedElements.length === 1 && selectedElements[0] === element
-    } catch (e) {
-      logger.debug('Failed to validate selector', selector, e)
-      return false
+  const validSelectors: string[] = []
+  const selectorGenerators = [
+    () => _getParentPathSelectors(document, element),
+    () => _getChildRelationshipSelectors(document, element),
+    () => _getSiblingRelationshipSelectors(document, element)
+  ]
+
+  for (const generator of selectorGenerators) {
+    const selectors = generator()
+    for (const selector of selectors) {
+      if (validateSelector(document, element, selector)) {
+        validSelectors.push(selector)
+        if (validSelectors.length >= 10) {
+          return validSelectors
+        }
+      }
     }
   }
 
-  const validSelectors = selectors.filter(validateSelector)
-  logger.debug('Valid selectors', validSelectors)
-  return validSelectors.slice(0, 100)
+  return validSelectors
 }
 
 export { getSelectors }
