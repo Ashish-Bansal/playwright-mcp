@@ -27,12 +27,23 @@ server.prompt(
           role: "user",
           content: {
             type: "text",
-            text: `Let me share the flow of how this MCP server works. We will initialise browser if we haven't done so. In the opened browser, user will navigate to page for which they want to write testcases and then record interactions with the page. This is context for writing the testcase.
+            text: `# DON'T ASSUME ANYTHING. Whatever you write in code, it must be found in the context. Otherwise leave comments.
 
-Please follow this exact sequence of steps to write the testcase:
-1. Use the "get-context" tool to obtain the context.
-2. Use that context to write the testcase based on your prompt.
-3. Once you have generated first version of the testcase, make sure you verify that all the selectors you've chosen are correct using the "validate-selectors" tool.
+## Goal
+Help me write playwright code with following functionalities:
+- [[add semi-high level functionality you want here]]
+- [[more]]
+- [[more]]
+- [[more]]
+
+## Reference
+- Use @x, @y files if you want to take reference on how I write POM code
+
+## Steps
+- First fetch the context from 'get-context' tool, until it returns no elements remaining
+- Based on context and user functionality, write code in POM format, encapsulating high level functionality into reusable functions
+- Try executing code using 'execute-code' tool. You could be on any page, so make sure to navigate to the correct page
+- Write spec file using those reusable functions, covering multiple scenarios
 `
           }
         }
@@ -40,7 +51,6 @@ Please follow this exact sequence of steps to write the testcase:
     };
   }
 );
-
 
 
 server.tool(
@@ -264,42 +274,6 @@ server.tool(
 
     return {
       content
-    };
-  }
-);
-
-server.tool(
-  "validate-selectors",
-  "Validate multiple selectors. Returns validation results for each selector.  (Deprecated, use execute-code instead)",
-  {
-    selectors: z.array(z.string()),
-  },
-  async ({ selectors }) => {
-    const results = await Promise.all(
-      selectors.map(async (selector) => {
-        const locator = page.locator(selector);
-        const count = await locator.count();
-        return {
-          selector,
-          isValid: count === 1,
-          count
-        };
-      })
-    );
-
-    const validationText = results
-      .map(({ selector, isValid, count }) =>
-        `${selector}: ${isValid ? 'valid' : `invalid (${count} elements found)`}`
-      )
-      .join('\n');
-
-    return {
-      content: [
-        {
-          type: "text",
-          text: validationText
-        },
-      ],
     };
   }
 );
