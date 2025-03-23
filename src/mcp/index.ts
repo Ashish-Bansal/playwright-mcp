@@ -62,35 +62,10 @@ server.tool(
     });
     context = await browser.newContext({
       viewport: null,
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36'
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      bypassCSP: true,
     });
     page = await context.newPage();
-
-    await context.route('**/*.html', async route => {
-      const response = await route.fetch();
-      const headers = response.headers();
-
-      const contentType = headers['content-type'] || '';
-      if (contentType.includes('text/html')) {
-        const currentCSP = headers['Content-Security-Policy'] || '';
-
-        if (currentCSP) {
-          if (currentCSP.includes('frame-src')) {
-            headers['Content-Security-Policy'] = currentCSP.replace(
-              /frame-src([^;]*)(;|$)/,
-              "frame-src 'self' http://localhost:5174/$2"
-            );
-          } else {
-            headers['Content-Security-Policy'] = currentCSP + " frame-src 'self' http://localhost:5174/;";
-          }
-        } else {
-          headers['Content-Security-Policy'] = "frame-src 'self' http://localhost:5174/;";
-        }
-      }
-
-      await route.fulfill({ response, headers });
-    });
-
 
     await page.exposeFunction('triggerMcpStartPicking', (pickingType: 'DOM' | 'Image') => {
       page.evaluate((pickingType: 'DOM' | 'Image') => {
