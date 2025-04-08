@@ -18,7 +18,7 @@ Wouldn't it be nice if your AI could actually understand your web page instead o
 
 `playwright-mcp` gives your AI assistant superpowers by making the browser fully visible to it. Instead of working in the dark, your AI assistant now has real-time access to the page DOM, elements, and interactions.
 
-###How playwright-mcp Works (AKA How We Fix This Mess)
+### How playwright-mcp Works (AKA How We Fix This Mess)
 
 Once installed, playwright-mcp spins up a Playwright-controlled browser and gives your AI assistant full access to it. This unlocks:
 
