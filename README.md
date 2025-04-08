@@ -69,8 +69,7 @@ If you're using Cursor, follow these steps to connect `playwright-mcp` like a bo
 4. Click "Add new MCP server"
 5. Fill in the following details:
     
-    <img src={require('@site/static/img/cursor-add-mcp.png').default} alt="Add playwright-mcp to cursor" className="img-medium" />
-    (!Connect playwright-mcp to cursor)[https://github.com/Ashish-Bansal/playwright-mcp/refs/heads/docs/static/img/cursor-add-mcp.png]
+    ![Connect playwright-mcp to cursor](https://github.com/Ashish-Bansal/playwright-mcp/refs/heads/docs/static/img/cursor-add-mcp.png?raw=true)
 
 
     - Name → `playwright-mcp`
@@ -93,7 +92,7 @@ Note: If clicking on "Add new MCP server", opens a file(.cursor/mcp.json), Paste
 }
 ```
 
-Now Cursor actually understands your web pages. No more random test suggestions based on zero context! Head to the [Claude tutorial](tutorials/claude-desktop-tutorial) or [Cursor tutorial](tutorials/cursor-tutorial) to understand it in details. 
+Now Cursor actually understands your web pages. No more random test suggestions based on zero context! Head to the [Claude tutorial](https://ashish-bansal.github.io/playwright-mcp/tutorials/claude-desktop-tutorial) or [Cursor tutorial](https://ashish-bansal.github.io/playwright-mcp/tutorials/cursor-tutorial) to understand it in details. 
 
 ---
 
@@ -137,7 +136,7 @@ Wait… Does It Work with Other AI Assistants? Yes! While `playwright-mcp` is a 
         6. `validate-selectors`
     4. Ask Claude to init browser and a browser should open up after your approval! 
 
-Now that the Calude has access to the web pages. You can ask it write highly contextual tests! Head to the [Claude tutorial](tutorials/claude-desktop-tutorial) or [Cursor tutorial](tutorials/cursor-tutorial) to understand it in details. 
+Now that the Calude has access to the web pages. You can ask it write highly contextual tests! Head to the [Claude tutorial](https://ashish-bansal.github.io/playwright-mcp/tutorials/claude-desktop-tutorial) or [Cursor tutorial](https://ashish-bansal.github.io/playwright-mcp/tutorials/cursor-tutorial) to understand it in details. 
 
 
 [📖 **View Documentation**](https://ashish-bansal.github.io/playwright-mcp/)
