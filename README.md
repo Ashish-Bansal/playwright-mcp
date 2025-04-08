@@ -69,7 +69,7 @@ If you're using Cursor, follow these steps to connect `playwright-mcp` like a bo
 4. Click "Add new MCP server"
 5. Fill in the following details:
     
-    ![Connect playwright-mcp to cursor](https://github.com/Ashish-Bansal/playwright-mcp/refs/heads/docs/static/img/cursor-add-mcp.png?raw=true)
+    ![Connect playwright-mcp to cursor](https://github.com/Ashish-Bansal/playwright-mcp/blob/docs/static/img/cursor-add-mcp.png?raw=true)
 
 
     - Name → `playwright-mcp`
